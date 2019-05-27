@@ -1,11 +1,8 @@
 package actors
 
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.util.*
 
 // We have a worker who makes machines every 800ms as long as there is less than 5 of them.
@@ -43,6 +40,21 @@ fun CoroutineScope.managerActor(control: FactoryControl) = actor<ManagerMessages
 
 fun CoroutineScope.workerActor(control: FactoryControl, managerChannel: SendChannel<ManagerMessages>) = actor<WorkerMessages> {
     TODO()
+}
+
+fun CoroutineScope.createMachine(workerChannel: SendChannel<WorkerMessages>, managerChannel: SendChannel<ManagerMessages>, control: FactoryControl) {
+    val machine = control.makeMachine()
+    launch {
+        try {
+            repeat(1000) {
+                delay(1000)
+                val code = machine.produce()
+                // TODO: Inform manager about code
+            }
+        } catch (productionError: ProductionError) {
+            // TODO: Inform worker
+        }
+    }
 }
 
 interface ManagerMessages
