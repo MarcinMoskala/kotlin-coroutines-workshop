@@ -11,16 +11,9 @@ val UI = newSingleThreadContext("UIThread") // Normally it will be Dispatchers.M
 // TODO: Edit only this class
 abstract class BasePresenter(
         private val onError: (Throwable) -> Unit = {}
-): CoroutineScope {
+) {
 
-    private val handler = CoroutineExceptionHandler { _, throwable ->
-        onError(throwable)
-    }
-    override val coroutineContext = UI + SupervisorJob() + handler
-
-    fun onDestroy() {
-        coroutineContext.cancel()
-    }
+    fun onDestroy() {}
 }
 
 @Suppress("FunctionName")
