@@ -1,30 +1,48 @@
 package backend
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.lang.Error
 
 data class User(val name: String)
 
-fun main() {
-    val database = Database()
-    val emailService = EmailService()
+fun setupApi(database: Database, emailService: EmailService) {
     api {
+        get("hello") {
+            "Hello, world"
+        }
+        get("slow_hello") {
+            delay(1000)
+            "Hello, world"
+        }
         get("users") {
-            "[]"
+            // TODO: Return users from DB
         }
         post("user") { body ->
-            val user = body as? User ?: throw Error("Passed user is not correct")
-            print("I just get $user")
-            "OK"
+            // TODO: Add user to DB and send email to "contact@kt.academy" with body "New user $name"
         }
         get("user/count") {
-            0
+            // TODO: Get users count
         }
     }.start()
+}
 
+fun main() {
+    val database = DatabaseImpl()
+    val emailService = EmailServiceImpl()
+    setupApi(database, emailService)
     runBlocking {
+        println(get("hello"))
         println("User count is ${get("user/count")}")
         println("Users are ${get("users")}")
         post("user", User("Marcin"))
     }
+
+//    runBlocking {
+//        launch { print(get("slow_hello")) }
+//        launch { print(get("slow_hello")) }
+//        launch { print(get("slow_hello")) }
+//        launch { print(get("slow_hello")) }
+//    }
 }
+
