@@ -83,7 +83,11 @@ class StructuredTests {
         val context = TestCoroutineContext()
         runBlocking(context) {
             setupFactory(control)
-            context.advanceTimeBy(5 * 800)
+            for(i in 0..5) {
+                context.triggerActions()
+                assertEquals(i, control.createdMachines.size)
+                context.advanceTimeBy(800)
+            }
             for(i in 0..10) {
                 context.triggerActions()
                 assertEquals(5, control.createdMachines.size)
