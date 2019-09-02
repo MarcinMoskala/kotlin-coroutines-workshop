@@ -1,29 +1,21 @@
-package examples.c9
+package examples.c5
 
-import examples.massiveRun
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.channels.*
 
-sealed class CounterMsg
-object IncCounter : CounterMsg()
-class GetCounter(val response: CompletableDeferred<Int>) : CounterMsg()
-
-fun CoroutineScope.counterActor() = actor<CounterMsg> {
-    var counter = 0
-    for (msg in channel) {
-        when (msg) {
-            is IncCounter -> counter++
-            is GetCounter -> msg.response.complete(counter)
-        }
+suspend fun sendString(channel: SendChannel<String>, s: String, time: Long) {
+    while (true) {
+        delay(time)
+        channel.send(s)
     }
 }
 
-fun main(args: Array<String>) = runBlocking<Unit> {
-    val counter = counterActor()
-    GlobalScope.massiveRun { counter.send(IncCounter) }
-    val response = CompletableDeferred<Int>()
-    counter.send(GetCounter(response))
-    println("Counter = ${response.await()}")
-    counter.close()
+fun main() = runBlocking {
+    val channel = Channel<String>()
+    launch { sendString(channel, "foo", 200L) }
+    launch { sendString(channel, "BAR!", 500L) }
+    repeat(1000) {
+        println(channel.receive())
+    }
+    coroutineContext.cancelChildren()
 }

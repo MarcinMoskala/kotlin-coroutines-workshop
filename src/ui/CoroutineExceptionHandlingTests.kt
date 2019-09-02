@@ -16,14 +16,15 @@ class CoroutineExceptionHandlingTests {
         var cancelledJobs = 0
 
         fun onCreate() {
-            launch {
-                delay(100)
-                throw Error()
-            }
-            launch {
-                delay(200)
-                onSecondAction()
-            }
+            // TODO Uncomment
+//            launch {
+//                delay(100)
+//                throw Error()
+//            }
+//            launch {
+//                delay(200)
+//                onSecondAction()
+//            }
         }
     }
 

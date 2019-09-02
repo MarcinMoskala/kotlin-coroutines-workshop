@@ -1,21 +1,28 @@
-package examples.c5
+package examples
 
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
-suspend fun sendString(channel: SendChannel<String>, s: String, time: Long) {
-    while (true) {
-        delay(time)
-        channel.send(s)
+fun main() = runBlocking<Unit> {
+    val channel = Channel<String>(3)
+
+    launch {
+        var i = 1
+        repeat(5) {
+            channel.send("Ping ${i++}")
+            println("Message sent")
+        }
+        channel.close()
     }
-}
 
-fun main() = runBlocking {
-    val channel = Channel<String>()
-    launch { sendString(channel, "foo", 200L) }
-    launch { sendString(channel, "BAR!", 500L) }
-    repeat(6) {
-        println(channel.receive())
+    // Listener
+    launch {
+        var i = 1
+        for(text in channel) {
+            println(text)
+            delay(1000)
+        }
     }
-    coroutineContext.cancelChildren()
 }
