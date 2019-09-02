@@ -1,25 +1,28 @@
-package examples.c4
+package examples
 
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
-fun CoroutineScope.produceNumbers() = produce {
-    var x = 1 // start from 1
-    while (true) {
-        send(x++)
-        delay(100)
+fun main() = runBlocking<Unit> {
+    val channel = Channel<String>(Channel.UNLIMITED)
+
+    launch {
+        var i = 1
+        repeat(5) {
+            channel.send("Ping ${i++}")
+            println("Message sent")
+        }
+        channel.close()
     }
-}
 
-fun CoroutineScope.launchProcessor(id: Int, channel: ReceiveChannel<Int>) = launch {
-    for (msg in channel) {
-        println("Processor #$id received $msg")
+    // Listener
+    launch {
+        var i = 1
+        for(text in channel) {
+            println(text)
+            delay(1000)
+        }
     }
-}
-
-fun main() = runBlocking {
-    val producer = produceNumbers()
-    repeat(5) { launchProcessor(it, producer) }
-    delay(950)
-    producer.cancel()
 }

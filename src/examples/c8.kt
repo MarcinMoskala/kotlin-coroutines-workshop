@@ -1,32 +1,25 @@
-package examples.c8
+package examples.c4
 
-import examples.massiveRun
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.*
 
-sealed class CounterMsg
-object IncCounter : CounterMsg()
-class GetCounter(val response: CompletableDeferred<Int>) : CounterMsg()
-
-fun CoroutineScope.counterActor(): Channel<CounterMsg> {
-    val channel = Channel<CounterMsg>()
-    launch {
-        var counter = 0
-        for (msg in channel) {
-            when (msg) {
-                is IncCounter -> counter++
-                is GetCounter -> msg.response.complete(counter)
-            }
-        }
+fun CoroutineScope.produceNumbers() = produce {
+    var x = 1 // start from 1
+    while (true) {
+        send(x++)
+        delay(100)
     }
-    return channel
 }
 
-fun main() = runBlocking<Unit> {
-    val channel = counterActor()
-    GlobalScope.massiveRun { channel.send(IncCounter) }
-    val response = CompletableDeferred<Int>()
-    channel.send(GetCounter(response))
-    println("Counter = ${response.await()}")
-    channel.close()
+fun CoroutineScope.launchProcessor(id: Int, channel: ReceiveChannel<Int>) = launch {
+    for (msg in channel) {
+        println("Processor #$id received $msg")
+    }
+}
+
+fun main() = runBlocking {
+    val producer = produceNumbers()
+    repeat(5) { launchProcessor(it, producer) }
+    delay(9050)
+    producer.cancel()
 }

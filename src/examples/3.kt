@@ -6,7 +6,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 
-fun main() = runBlocking {
+suspend fun main() {
     GlobalScope.launch {
         delay(1000L)
         println("World!")
@@ -17,7 +17,9 @@ fun main() = runBlocking {
 
 class MyTest {
     @Test
-    fun testMySuspendingFunction() = runBlocking {
-        //...
+    fun testMySuspendingFunction() {
+        var a = "AA"
+//        delay(1000)
+        assert(1 == 1)
     }
 }

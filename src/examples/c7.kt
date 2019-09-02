@@ -1,28 +1,24 @@
-package examples.c7
+package examples.c3
 
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.runBlocking
 
-fun main() = runBlocking<Unit> {
-    val tickerChannel = ticker(delayMillis = 100, initialDelayMillis = 0) // create ticker channel
-    var nextElement = withTimeoutOrNull(1) { tickerChannel.receive() }
-    println("Initial element is available immediately: $nextElement") // initial delay hasn't passed yet
+fun CoroutineScope.produceNumbers() = produce<Int> {
+    var x = 1
+    while (true) send(x++) // infinite stream of integers starting from 1
+}
 
-    nextElement = withTimeoutOrNull(50) { tickerChannel.receive() } // all subsequent elements has 100ms delay
-    println("Next element is not ready in 50 ms: $nextElement")
+fun CoroutineScope.square(numbers: ReceiveChannel<Int>): ReceiveChannel<Int> = produce {
+    for (x in numbers) send(x * x)
+}
 
-    nextElement = withTimeoutOrNull(60) { tickerChannel.receive() }
-    println("Next element is ready in 100 ms: $nextElement")
-
-    // Emulate large consumption delays
-    println("Consumer pauses for 150ms")
-    delay(150)
-    // Next element is available immediately
-    nextElement = withTimeoutOrNull(1) { tickerChannel.receive() }
-    println("Next element is available immediately after large consumer delay: $nextElement")
-    // Note that the pause between `receive` calls is taken into account and next element arrives faster
-    nextElement = withTimeoutOrNull(60) { tickerChannel.receive() }
-    println("Next element is ready in 50ms after consumer pause in 150ms: $nextElement")
-
-    tickerChannel.cancel() // indicate that no more elements are needed
+fun main() = runBlocking {
+    val numbers = produceNumbers()
+    val squares = square(numbers)
+    for (i in 1..5) println(squares.receive())
+    println("Done!")
+    coroutineContext.cancelChildren()
 }

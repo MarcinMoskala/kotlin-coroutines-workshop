@@ -10,12 +10,13 @@ fun main() = runBlocking {
     launch {
         repeat(5) { index ->
             channel.send(index * 2)
-            delay(1000)
+            print("Producing next one")
         }
     }
 
     repeat(5) {
         val received = channel.receive()
+        delay(1000)
         print(received)
     }
 }

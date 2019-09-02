@@ -1,24 +1,29 @@
-package examples.c3
+package examples
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-fun CoroutineScope.produceNumbers() = produce<Int> {
-    var x = 1
-    while (true) send(x++) // infinite stream of integers starting from 1
-}
+fun main() = runBlocking<Unit> {
+    val channel = Channel<String>()
+    // Same as Channel<String>(Channel.RENDEZVOUS)
 
-fun CoroutineScope.square(numbers: ReceiveChannel<Int>): ReceiveChannel<Int> = produce {
-    for (x in numbers) send(x * x)
-}
+    launch {
+        var i = 1
+        repeat(5) {
+            channel.send("Ping ${i++}")
+            println("Message sent")
+        }
+        channel.close()
+    }
 
-fun main() = runBlocking {
-    val numbers = produceNumbers()
-    val squares = square(numbers)
-    for (i in 1..5) println(squares.receive())
-    println("Done!")
-    coroutineContext.cancelChildren()
+    // Listener
+    launch {
+        var i = 1
+        for(text in channel) {
+            println(text)
+            delay(1000)
+        }
+    }
 }
