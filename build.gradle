@@ -9,12 +9,18 @@ apply plugin: "kotlin"
 
 dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect'
 
     implementation 'org.jetbrains.kotlin:kotlin-test'
     implementation 'org.jetbrains.kotlin:kotlin-test-junit'
     implementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1'
+}
+
+tasks.withType(JavaCompile) {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 kotlin {
