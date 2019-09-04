@@ -21,7 +21,7 @@ interface StudentsRepository {
     suspend fun getStudent(id: Int): Student
 }
 
-class ScopeTest {
+class RequestTest {
 
     @Test
     fun `Function does return the best student in the semester`() = runBlocking {
