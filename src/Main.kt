@@ -1,12 +1,12 @@
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import kotlin.random.Random
 
-fun main(): Unit = runBlocking {
-    println("Started!")
-    test()
-    println("Done.")
-}
-
-suspend fun test() {
+fun main() = runBlocking<Unit> {
     delay(1000)
+    print("Hello, World")
 }
+
+//suspend fun main() = coroutineScope<Unit> {
+//    delay(1000)
+//    print("Hello, World")
+//}
