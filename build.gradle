@@ -1,5 +1,5 @@
 plugins {
-    id "org.jetbrains.kotlin.jvm" version "1.3.10"
+    id "org.jetbrains.kotlin.jvm" version "1.3.50"
 }
 repositories {
     mavenCentral()
@@ -15,7 +15,8 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-test-junit'
     implementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.1'
 }
 
 tasks.withType(JavaCompile) {
@@ -26,7 +27,9 @@ tasks.withType(JavaCompile) {
 kotlin {
     sourceSets {
         main.kotlin.srcDirs += 'src'
+        test.kotlin.srcDirs += 'src'
     }
+
     experimental {
         coroutines "enable"
     }
