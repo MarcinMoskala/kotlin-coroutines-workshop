@@ -1,12 +1,14 @@
 package ui
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.test.setMain
+import org.junit.Before
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertEquals
 
-val UI = newSingleThreadContext("UIThread") // Normally it will be Dispatchers.Main
 
 // TODO: Edit only this class
 abstract class BasePresenter(
@@ -16,8 +18,16 @@ abstract class BasePresenter(
     fun onDestroy() {}
 }
 
+
 @Suppress("FunctionName")
 class BasePresenterTests {
+
+    private val UI = newSingleThreadContext("UIThread") // Normally it will be Dispatchers.Main
+
+    @BeforeEach
+    fun setUp() {
+        Dispatchers.setMain(UI)
+    }
 
     class FakePresenter(
             private val jobInterceptor: (() -> Unit)? = null,
@@ -86,6 +96,6 @@ class BasePresenterTests {
         )
         presenter.onCreate()
         delay(200)
-        assertEquals(listOf(error, error), errors)
+        assertEquals(error, errors.first())
     }
 }
