@@ -18,15 +18,8 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 interface GitHubService {
-    fun getOrgRepos(callback: (List<Repo>) -> Unit)
-    suspend fun getOrgRepos(): List<Repo> = suspendCoroutine { cont ->
-        getOrgRepos { cont.resume(it) }
-    }
-
-    fun getRepoContributors(repo: String, callback: (List<User>) -> Unit)
-    suspend fun getRepoContributors(repo: String): List<User> = suspendCoroutine { cont ->
-        getRepoContributors(repo) { cont.resume(it) }
-    }
+    suspend fun getOrgRepos(): List<Repo>
+    suspend fun getRepoContributors(repo: String): List<User>
 }
 
 fun createGitHubService(username: String, password: String): GitHubService {
@@ -52,12 +45,20 @@ fun createGitHubService(username: String, password: String): GitHubService {
 }
 
 class GitHubServiceImpl(val apiService: GitHubServiceApiDef) : GitHubService {
-    override fun getOrgRepos(callback: (List<Repo>) -> Unit) =
+    override suspend fun getOrgRepos(): List<Repo> = suspendCoroutine { cont ->
+        getOrgRepos { cont.resume(it) }
+    }
+
+    override suspend fun getRepoContributors(repo: String): List<User> = suspendCoroutine { cont ->
+        getRepoContributors(repo) { cont.resume(it) }
+    }
+
+    fun getOrgRepos(callback: (List<Repo>) -> Unit) =
         apiService.getOrgReposCall().onResponse {
             callback(it.body() ?: throw ApiError(it.code(), it.message()))
         }
 
-    override fun getRepoContributors(repo: String, callback: (List<User>) -> Unit) =
+    fun getRepoContributors(repo: String, callback: (List<User>) -> Unit) =
         apiService.getRepoContributorsCall(repo).onResponse {
             callback(it.body() ?: throw ApiError(it.code(), it.message()))
         }
