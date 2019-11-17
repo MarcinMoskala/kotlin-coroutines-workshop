@@ -63,6 +63,13 @@ fun makeEspresso(ground: GroundCoffee): Espresso {
     return Espresso(ground)
 }
 
+class EspressoMachine {
+    fun makeEspresso(ground: GroundCoffee): Espresso = synchronized(this) {
+        Thread.sleep(1000)
+        return Espresso(ground)
+    }
+}
+
 fun longOperation() {
 //    val size = 820 // ~1 second on my MacBook
     val size = 350 // ~0.1 second on my MacBook
