@@ -5,54 +5,41 @@ import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
 import java.util.*
 
-// We have a worker who makes machines every 800ms as long as there is less than 5 of them.
-//   He won't produce more than 1000 machines. Please, use `repeat(1000)` instead of `while(true)`
-// Every machine produces a code using `structured.produce` function every second. It saves this code to shared space.
-//   In case of an error, it stops working.
-//   Machine won't produce more than 1000 codes. Please, use `repeat(1000)` instead of `while(true)`
-// We have a single manager that takes codes one after another and stores them using `control.storeCode`.
-//   Note that is it time consuming operation.
-//   He is the only one who can do that.
-//   In case of no codes, he sleeps for 100ms
-//   He ends everything when there are 20 codes stored.
-//   He won't do it more than 1000 times. Please, use `repeat(1000)` instead of `while(true)`
+// Finish the below implementation by sending messages and implementing the following actors:
+// Worker is informed every 800. If there are less than 5 machines it produces a new one.
+// Every machine produces a code using `structured.produce` function every second or breaks (random).
+// Manager collects all the codes, and stores them using `storeCode`, and if there are more than 20 stored is ends everything.
 
 fun main() = runBlocking<Unit> {
     setupFactory(StandardFactoryControl())
 }
 
-fun CoroutineScope.setupFactory(control: FactoryControl) {
+fun CoroutineScope.setupFactory(control: FactoryControl) = launch(Job()) {
     val managerChannel = managerActor(control)
     val workerChannel = workerActor(control, managerChannel)
     launch {
         repeat(1000) {
             delay(800)
-            // Inform worker that it is time to wake up
+            // TODO
         }
-        managerChannel.close()
-        workerChannel.close()
     }
 }
 
-fun CoroutineScope.managerActor(control: FactoryControl) = actor<ManagerMessages> {
-    TODO()
-}
+fun CoroutineScope.managerActor(control: FactoryControl): SendChannel<ManagerMessages> = TODO()
 
-fun CoroutineScope.workerActor(control: FactoryControl, managerChannel: SendChannel<ManagerMessages>) = actor<WorkerMessages> {
-    TODO()
-}
+fun CoroutineScope.workerActor(control: FactoryControl, managerChannel: SendChannel<ManagerMessages>): SendChannel<WorkerMessages> = TODO()
 
-fun CoroutineScope.createMachine(workerChannel: SendChannel<WorkerMessages>, managerChannel: SendChannel<ManagerMessages>, control: FactoryControl) {
+fun CoroutineScope.startMachine(control: FactoryControl, workerChannel: SendChannel<WorkerMessages>, managerChannel: SendChannel<ManagerMessages>) {
     val machine = control.makeMachine()
     launch {
         try {
             repeat(1000) {
                 delay(1000)
                 val code = machine.produce()
-                // TODO: Inform manager about code
+                // TODO
             }
-        } catch (productionError: ProductionError) {
-            // TODO: Inform worker
+        } catch (error: ProductionError) {
+            // TODO
         }
     }
 }
