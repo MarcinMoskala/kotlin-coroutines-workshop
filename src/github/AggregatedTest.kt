@@ -1,9 +1,7 @@
 package github
 
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
-import kotlinx.coroutines.withContext
 import org.junit.Test
 import kotlin.test.assertEquals
 

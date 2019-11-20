@@ -2,7 +2,6 @@ package actors
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.channels.actor
 import java.util.*
 
 // Finish the below implementation by sending messages and implementing the following actors:

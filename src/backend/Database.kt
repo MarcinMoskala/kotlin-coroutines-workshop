@@ -7,7 +7,7 @@ interface Database {
     suspend fun addUser(user: User)
 }
 
-class DatabaseImpl: Database {
+class DatabaseImpl : Database {
 
     var users = listOf<User>()
 

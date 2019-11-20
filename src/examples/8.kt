@@ -1,6 +1,9 @@
 package examples
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.runBlocking
 
 fun main() = runBlocking<Unit> {
     fun getThreadName() = Thread.currentThread().name

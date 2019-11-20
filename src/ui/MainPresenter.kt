@@ -1,7 +1,5 @@
 package ui
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import java.util.*
 
 class MainPresenter(

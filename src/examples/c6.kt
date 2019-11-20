@@ -19,7 +19,7 @@ fun main() = runBlocking<Unit> {
     // Listener
     launch {
         var i = 1
-        for(text in channel) {
+        for (text in channel) {
             println(text)
             delay(1000)
         }

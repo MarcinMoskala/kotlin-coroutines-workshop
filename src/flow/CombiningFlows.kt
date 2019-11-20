@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 
 suspend fun main() {
-    val f1 = flowOf(1,2,3).onEach { delay(1000) }
+    val f1 = flowOf(1, 2, 3).onEach { delay(1000) }
     val f2 = flowOf("A", "B", "C").onEach { delay(800) }
 
 //    f1.zip(f2) { t1, t2 -> t2 + t1}
