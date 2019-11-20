@@ -1,32 +1,24 @@
 package examples.c9
 
-import examples.massiveRun
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
-sealed class CounterMsg
-object IncCounter : CounterMsg()
-object BicrementCounter : CounterMsg()
-class GetCounter(val response: CompletableDeferred<Int>) : CounterMsg()
-
-fun CoroutineScope.counterActor() = actor<CounterMsg> {
-    var counter = 0
-    for (msg in channel) {
-        when (msg) {
-            is IncCounter -> counter++
-            is GetCounter -> msg.response.complete(counter)
+fun main() = runBlocking<Unit> {
+    println("Started producing")
+    val channel = produce<Int> {
+        println("Channel started")
+        for (i in 1..3) {
+            delay(100)
+            send(i)
         }
     }
+
+    delay(100)
+    println("Calling channel...")
+    channel.consumeEach { value -> println(value) }
+    println("Consuming again...")
+    channel.consumeEach { value -> println(value) }
 }
 
-fun main(args: Array<String>) = runBlocking<Unit> {
-    val counter = counterActor()
-    GlobalScope.massiveRun { counter.send(IncCounter) }
-    val response = CompletableDeferred<Int>()
-    counter.send(GetCounter(response))
-    println("Counter = ${response.await()}")
-    counter.close()
-}
