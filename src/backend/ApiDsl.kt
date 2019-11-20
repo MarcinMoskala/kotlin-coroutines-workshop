@@ -19,15 +19,15 @@ class ApiConfig {
         addHandle("get", path, handle)
     }
 
-    fun post(path: String, handle: suspend CoroutineScope.(body: Any?)->Any) {
-        addHandle("post", path, handle)
+    inline fun <reified T> post(path: String, noinline handle: suspend CoroutineScope.(body: T)->Any) {
+        addHandle("post", path, { handle(it as T) })
     }
 
     fun start() {
         publicHandles = publicHandles + handles
     }
 
-    private fun addHandle(method: String, path: String, handle: suspend CoroutineScope.(body: Any?)->Any) {
+    fun addHandle(method: String, path: String, handle: suspend CoroutineScope.(body: Any?)->Any) {
         handles = handles + (Endpoint(method, path) to handle)
     }
 }

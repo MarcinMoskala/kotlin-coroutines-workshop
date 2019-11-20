@@ -38,7 +38,7 @@ class ApiTests {
     fun `When user is added, email is sent`() = runBlocking {
         val emailService = FakeEmailService()
         setupApi(FakeDatabase(), emailService)
-        post("user", "Piotr")
+        post("user", User("Piotr"))
         assertEquals(listOf("contact@kt.academy" to "New user Piotr"), emailService.emailsSend)
     }
 
@@ -46,9 +46,14 @@ class ApiTests {
     fun `When we add email, it is added to the database`() = runBlocking {
         val database = FakeDatabase()
         setupApi(database, FakeEmailService())
-        post("user", "Piotr")
+
+        assertEquals(listOf<User>(), get("users"))
+        assertEquals(0, get("users/count"))
+
+        post("user", User("Piotr"))
         assertEquals(listOf(User("Piotr")), database.users)
         val users = get("users")
         assertEquals(listOf(User("Piotr")), users)
+        assertEquals(1, get("users/count"))
     }
 }

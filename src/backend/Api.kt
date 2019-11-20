@@ -18,10 +18,10 @@ fun setupApi(database: Database, emailService: EmailService) {
         get("users") {
             // TODO: Return users from DB
         }
-        post("user") { body ->
+        post<User>("user") { user ->
             // TODO: Add user to DB and send email to "contact@kt.academy" with body "New user $name"
         }
-        get("user/count") {
+        get("users/count") {
             // TODO: Get users count
         }
     }.start()
@@ -37,12 +37,5 @@ fun main() {
         println("Users are ${get("users")}")
         post("user", User("Marcin"))
     }
-
-//    runBlocking {
-//        launch { print(get("slow_hello")) }
-//        launch { print(get("slow_hello")) }
-//        launch { print(get("slow_hello")) }
-//        launch { print(get("slow_hello")) }
-//    }
 }
 
