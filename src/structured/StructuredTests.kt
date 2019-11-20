@@ -1,8 +1,8 @@
 package structured
 
 import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 class StructuredTests {
 
     class FakeFactoryControl(
-            val machineProducer: ()->Machine
+            val machineProducer: () -> Machine
     ) : FactoryControl {
         var createdMachines = listOf<Machine>()
         var codesStored = listOf<String>()
@@ -41,6 +41,7 @@ class StructuredTests {
             require(!finished)
             return (timesUsed++).toString()
         }
+
         fun finish() {
             finished = true
         }
@@ -78,45 +79,36 @@ class StructuredTests {
     }
 
     @Test
-    fun `Function creates a new machine every 800ms up to 5 and no more if they are all perfect`() {
+    fun `Function creates a new machine every 800ms up to 5 and no more if they are all perfect`() = runBlockingTest {
         val control = FakeFactoryControl(machineProducer = ::PerfectMachine)
-        val context = TestCoroutineContext()
-        runBlocking(context) {
-            setupFactory(control)
-            for(i in 0..10) {
-                context.triggerActions()
-                assertEquals(i, control.createdMachines.size)
-                context.advanceTimeBy(800)
-            }
-            for(i in 0..10) {
-                context.triggerActions()
-                assertEquals(5, control.createdMachines.size)
-                context.advanceTimeBy(800)
-            }
+        setupFactory(control)
+        for (i in 0..5) {
+            assertEquals(i, control.createdMachines.size)
+            delay(800)
+        }
+        for (i in 0..10) {
+            assertEquals(5, control.createdMachines.size)
+            delay(800)
         }
     }
 
     @Test
-    fun `Function creates a new machine every 800ms every time if all machines are failing`() {
+    fun `Function creates a new machine every 800ms every time if all machines are failing`() = runBlockingTest {
         val control = FakeFactoryControl(machineProducer = ::FailingMachine)
-        val context = TestCoroutineContext()
-        runBlocking(context) {
-            setupFactory(control)
-            for(i in 0..100) {
-                context.triggerActions()
-                assertEquals(i, control.createdMachines.size)
-                context.advanceTimeBy(800)
-            }
+        setupFactory(control)
+        for (i in 0..100) {
+            assertEquals(i, control.createdMachines.size)
+            delay(800)
         }
     }
 
     @Test
-    fun `Function creates a new machine after 800ms if less then 5`() {
+    fun `Function creates a new machine after 800ms if less then 5`() = runBlockingTest {
         var correctMachines = 0
         var nextIsCorrect = false
         val control = FakeFactoryControl(machineProducer = {
-            val next = if(nextIsCorrect) {
-                correctMachines ++
+            val next = if (nextIsCorrect) {
+                correctMachines++
                 PerfectMachine()
             } else {
                 FailingMachine()
@@ -124,33 +116,29 @@ class StructuredTests {
             nextIsCorrect = !nextIsCorrect
             next
         })
-        val context = TestCoroutineContext()
-        runBlocking(context) {
-            setupFactory(control)
-            context.advanceTimeBy(20_000)
-            context.triggerActions()
-            assertEquals(5, control.createdMachines.filterIsInstance<PerfectMachine>().size)
 
-            // Is not producing any new
-            val producedPre = control.createdMachines.size
-            context.advanceTimeBy(2_000)
-            context.triggerActions()
-            val producedPost = control.createdMachines.size
-            assertEquals(producedPre, producedPost, "It should not produce any new machines when there are already 5 perfect")
-        }
+        setupFactory(control)
+        delay(20_000)
+
+        assertEquals(5, control.createdMachines.filterIsInstance<PerfectMachine>().size)
+
+        // Is not producing any new
+        val producedPre = control.createdMachines.size
+        delay(2_000)
+
+        val producedPost = control.createdMachines.size
+        assertEquals(producedPre, producedPost, "It should not produce any new machines when there are already 5 perfect")
     }
 
     @Test
-    fun `The first code should be created after time to create machine and time to produce code`() {
+    fun `The first code should be created after time to create machine and time to produce code (+10ms margin)`() = runBlockingTest {
         val perfectMachine = PerfectMachine()
         val control = FakeFactoryControl(machineProducer = { perfectMachine })
-        val context = TestCoroutineContext()
-        runBlocking(context) {
-            setupFactory(control)
-            context.advanceTimeTo(800 + 1000)
-            context.triggerActions()
-            assertEquals(1, perfectMachine.timesUsed)
-        }
+
+        setupFactory(control)
+        delay(800 + 1000 + 10)
+
+        assertEquals(1, perfectMachine.timesUsed)
     }
 
     /*
@@ -159,77 +147,68 @@ class StructuredTests {
                   m1 -----------------> CODE ---------------> CODE -----
                                   m3 ------------------> CODE ----------
                                                      m4 ----------------
-   Codes                    1              2     3          4    5    6
+    Codes                    1              2     3          4    5    6
      */
     @Test
-    fun `Every machine produces code every second`() {
+    fun `Every machine produces code every second`() = runBlockingTest {
         val perfectMachine = PerfectMachine()
         val control = FakeFactoryControl(machineProducer = { perfectMachine })
-        val context = TestCoroutineContext()
-        fun checkAt(timeMillis: Long, codes: Int) {
-            context.advanceTimeTo(timeMillis)
-            context.triggerActions()
+        suspend fun checkAt(timeMillis: Long, codes: Int) {
+            delay(timeMillis - currentTime)
             assertEquals(codes, perfectMachine.timesUsed)
         }
-        runBlocking(context) {
-            setupFactory(control)
-            checkAt(800, 0)
-            checkAt(1600, 0)
-            checkAt(1800, 1)
-            checkAt(2400, 1)
-            checkAt(2600, 2)
-            checkAt(2800, 3)
-            checkAt(3200, 3)
-            checkAt(3400, 4)
-            checkAt(3600, 5)
-            checkAt(3800, 6)
-        }
+
+        setupFactory(control)
+        checkAt(800, 0)
+        checkAt(1600, 0)
+        checkAt(1800, 1)
+        checkAt(2400, 1)
+        checkAt(2600, 2)
+        checkAt(2800, 3)
+        checkAt(3200, 3)
+        checkAt(3400, 4)
+        checkAt(3600, 5)
+        checkAt(3800, 6)
     }
 
     @Test
-    fun `Created codes are stored no later then 100ms after created`() {
+    fun `Created codes are stored no later then 100ms after created`() = runBlockingTest {
         val perfectMachine = PerfectMachine()
         val control = FakeFactoryControl(machineProducer = { perfectMachine })
-        val context = TestCoroutineContext()
-        fun checkAt(timeMillis: Long, codes: Int) {
-            context.advanceTimeTo(timeMillis)
-            context.triggerActions()
+        suspend fun checkAt(timeMillis: Long, codes: Int) {
+            delay(timeMillis - currentTime)
+
             assertEquals(codes, control.codesStored.size)
         }
-        runBlocking(context) {
-            setupFactory(control)
-            checkAt(900, 0)
-            checkAt(1700, 0)
-            checkAt(1900, 1)
-            checkAt(2500, 1)
-            checkAt(2700, 2)
-            checkAt(2900, 3)
-            checkAt(3300, 3)
-            checkAt(3500, 4)
-            checkAt(3700, 5)
-            checkAt(3900, 6)
-        }
+        setupFactory(control)
+        checkAt(900, 0)
+        checkAt(1700, 0)
+        checkAt(1900, 1)
+        checkAt(2500, 1)
+        checkAt(2700, 2)
+        checkAt(2900, 3)
+        checkAt(3300, 3)
+        checkAt(3500, 4)
+        checkAt(3700, 5)
+        checkAt(3900, 6)
     }
 
     @Test
-    fun `When there are 20 codes stored, process ends`() {
+    fun `When there are 20 codes stored, process ends`() = runBlockingTest {
         val perfectMachine = PerfectMachine()
         val control = FakeFactoryControl(machineProducer = { perfectMachine })
-        val context = TestCoroutineContext()
-        runBlocking(context) {
-            setupFactory(control)
-            context.advanceTimeTo(6800) // Time when 20'th code is produced
-            context.triggerActions()
-            assertEquals(20, control.codesStored.size)
-            perfectMachine.finish() // To not let it be used anymore
-            control.finish() // To not let it be used anymore
-            context.advanceTimeBy(1_000)
-            context.triggerActions()
-            assertEquals(20, control.codesStored.size)
-        }
+        setupFactory(control)
+        delay(6810) // Time when 20'th code is produced
+
+        assertEquals(20, control.codesStored.size)
+        perfectMachine.finish() // To not let it be used anymore
+        control.finish() // To not let it be used anymore
+        delay(1_000)
+
+        assertEquals(20, control.codesStored.size)
     }
 
-    private inline fun <reified T> assertThrows(body: ()->Unit) {
+    private inline fun <reified T> assertThrows(body: () -> Unit) {
         val error = try {
             body()
             Any()
