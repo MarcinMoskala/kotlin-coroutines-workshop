@@ -44,7 +44,7 @@ fun createGitHubService(username: String, password: String): GitHubService {
         .let(::GitHubServiceImpl)
 }
 
-class GitHubServiceImpl(val apiService: GitHubServiceApiDef) : GitHubService {
+class GitHubServiceImpl(private val apiService: GitHubServiceApiDef) : GitHubService {
     override suspend fun getOrgRepos(): List<Repo> = suspendCoroutine { cont ->
         getOrgRepos { cont.resume(it) }
     }
