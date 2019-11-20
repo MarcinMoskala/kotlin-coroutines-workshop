@@ -1,14 +1,14 @@
 package backend
 
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Test
-import org.junit.jupiter.api.AfterEach
 import kotlin.test.assertEquals
 
 @Suppress("FunctionName")
 class ApiTests {
 
-    @AfterEach
+    @After
     fun clean() {
         cleanupApi()
     }

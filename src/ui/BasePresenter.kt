@@ -5,8 +5,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.setMain
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import org.junit.Before
+import org.junit.Test
 import kotlin.test.assertEquals
 
 
@@ -24,7 +24,7 @@ class BasePresenterTests {
 
     private val UI = newSingleThreadContext("UIThread") // Normally it will be Dispatchers.Main
 
-    @BeforeEach
+    @Before
     fun setUp() {
         Dispatchers.setMain(UI)
     }

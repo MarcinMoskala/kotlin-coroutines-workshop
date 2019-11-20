@@ -5,7 +5,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.junit.jupiter.api.Test
+import org.junit.Test
 import kotlin.system.measureTimeMillis
 import kotlin.test.assertEquals
 
