@@ -2,8 +2,10 @@ package flow
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import java.util.concurrent.atomic.AtomicInteger
@@ -29,8 +31,20 @@ fun Flow<Unit>.toToggle(): Flow<Boolean> = TODO()
 fun Flow<Unit>.toNextNumbers(): Flow<Int> = TODO()
 
 // Should create a flow that every `tickEveryMillis` should emit next numbers from `startNum` to `endNum`
-// For instance
 fun makeTimer(tickEveryMillis: Long, startNum: Int, endNum: Int): Flow<Int> = TODO()
+
+// Based on two light switches, should decide if the general light should be switched on.
+// Should be if one is true and another is false
+fun TestCoroutineScope.makeLightSwitch(switch1: Flow<Boolean>, switch2: Flow<Boolean>): Flow<Boolean> = TODO()
+
+// Based on two light switches, should decide if the general light should be switched on.
+// Should be if one is turned on and another is off
+// At the beginning, both switches are off, and each action toggles
+fun makeLightSwitchToggle(switch1: Flow<Unit>, switch2: Flow<Unit>): Flow<Boolean> = TODO()
+
+fun polonaisePairing(track1: Flow<Person>, track2: Flow<Person>): Flow<Pair<Person, Person>> = TODO()
+
+data class Person(val name: String)
 
 @Suppress("FunctionName")
 class FlowTests {
@@ -139,12 +153,127 @@ class FlowTests {
         val maxValue = 20
         val res = makeTimer(100, 1, maxValue)
                 .onEach {
-                    if(it == 1) delay(50) // To make it clearly after timer delay
+                    if (it == 1) delay(50) // To make it clearly after timer delay
                     // We don't need to check more often than every 0.5s
                     delay(500)
                 }
                 .toList()
 
         assertEquals(listOf(1, 6, 11, 16, 20), res)
+    }
+
+    @Test()
+    fun makeLightSwitchTests() = runBlockingTest {
+        val switchOne = flow<Boolean> {
+            emit(true)
+            delay(1000)
+            emit(false)
+            delay(10)
+            emit(true)
+            delay(500) // 1500
+            emit(false)
+        }
+        val switchTwo = flow<Boolean> {
+            emit(false)
+            delay(200)
+            emit(true)
+            delay(1000) // 1200
+            emit(false)
+        }
+
+        var lightOn = false
+        launch {
+            makeLightSwitch(switchOne, switchTwo).collect {
+                lightOn = it
+            }
+        }
+
+        delay(50)
+        assertEquals(true, lightOn)
+        delay(200) // 250
+        assertEquals(false, lightOn)
+        delay(800) // 1050
+        assertEquals(false, lightOn)
+        delay(200) // 1250
+        assertEquals(true, lightOn)
+        delay(300) // 1550
+        assertEquals(false, lightOn)
+    }
+
+    @Test()
+    fun makeLightSwitchToggleTests() = runBlockingTest {
+        val switchOne = flow<Unit> {
+            emit(Unit)
+            delay(1000)
+            emit(Unit)
+            delay(10)
+            emit(Unit)
+            delay(500) // 1500
+            emit(Unit)
+        }
+        val switchTwo = flow<Unit> {
+            emit(Unit)
+            delay(200)
+            emit(Unit)
+            delay(1000) // 1200
+            emit(Unit)
+        }
+
+        var lightOn = false
+        launch {
+            makeLightSwitchToggle(switchOne, switchTwo).collect {
+                lightOn = it
+            }
+        }
+
+        delay(50)
+        assertEquals(true, lightOn)
+        delay(200) // 250
+        assertEquals(false, lightOn)
+        delay(800) // 1050
+        assertEquals(false, lightOn)
+        delay(200) // 1250
+        assertEquals(true, lightOn)
+        delay(300) // 1550
+        assertEquals(false, lightOn)
+    }
+
+    @Test()
+    fun polonaisePairingTests() = runBlockingTest {
+        val track1 = flow<Person> {
+            emit(Person("A"))
+            emit(Person("B"))
+            delay(1000)
+            emit(Person("C"))
+            emit(Person("D"))
+        }
+        val track2 = flow<Person> {
+            emit(Person("1"))
+            delay(600)
+            emit(Person("2"))
+            delay(1000)
+            emit(Person("3"))
+        }
+
+        val res = polonaisePairing(track1, track2).toList()
+        val expected = listOf("A" to "1", "B" to "2", "C" to "3").map { Person(it.first) to Person(it.second) }
+        assertEquals(expected, res)
+
+        var lastPair: Pair<Person, Person>? = null
+        launch {
+            polonaisePairing(track1, track2).collect { lastPair = it }
+        }
+
+        assertEquals(Person("A") to Person("1"), lastPair)
+        delay(200) // 200
+        assertEquals(Person("A") to Person("1"), lastPair)
+
+        delay(500) // 700
+        assertEquals(Person("B") to Person("2"), lastPair)
+        delay(500) // 1200
+        assertEquals(Person("B") to Person("2"), lastPair)
+
+        delay(500) // 1700
+        assertEquals(Person("C") to Person("3"), lastPair)
     }
 }
