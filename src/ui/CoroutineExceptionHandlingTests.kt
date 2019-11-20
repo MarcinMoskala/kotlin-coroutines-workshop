@@ -1,17 +1,14 @@
 package ui
 
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.supervisorScope
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @Suppress("FunctionName")
 class CoroutineExceptionHandlingTests {
 
-    class FakePresenterForSingleExceptionHandling(val onSecondAction: ()->Unit) : BasePresenter() {
+    class FakePresenterForSingleExceptionHandling(val onSecondAction: () -> Unit) : BasePresenter() {
 
         var cancelledJobs = 0
 

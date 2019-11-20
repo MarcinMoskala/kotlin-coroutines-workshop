@@ -10,7 +10,7 @@ class ContinuationStealTests {
 
     private val fakeText = "This is some text"
 
-    class FakeConsole: Console() {
+    class FakeConsole : Console() {
         val printed = mutableListOf<Any?>()
 
         override fun println(text: Any?) {

@@ -1,7 +1,10 @@
 package examples.n2
 
 import examples.massiveRun
-import kotlinx.coroutines.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 private var counter = 0
 

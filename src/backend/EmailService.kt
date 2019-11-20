@@ -6,7 +6,7 @@ interface EmailService {
     suspend fun sendEmail(to: String, body: String)
 }
 
-class EmailServiceImpl: EmailService {
+class EmailServiceImpl : EmailService {
 
     override suspend fun sendEmail(to: String, body: String) {
         delay(2000)

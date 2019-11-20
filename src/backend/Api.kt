@@ -1,7 +1,6 @@
 package backend
 
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 data class User(val name: String)

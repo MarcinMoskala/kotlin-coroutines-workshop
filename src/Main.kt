@@ -1,5 +1,5 @@
-import kotlinx.coroutines.*
-import kotlin.random.Random
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 fun main() = runBlocking<Unit> {
     delay(1000)

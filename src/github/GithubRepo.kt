@@ -2,9 +2,6 @@ package github
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -25,23 +22,23 @@ interface GitHubService {
 fun createGitHubService(username: String, password: String): GitHubService {
     val authToken = "Basic " + Base64.getEncoder().encode("$username:$password".toByteArray()).toString(Charsets.UTF_8)
     val httpClient = OkHttpClient.Builder()
-        .addInterceptor { chain ->
-            val original = chain.request()
-            val builder = original.newBuilder()
-                .header("Accept", "application/vnd.github.v3+json")
-                .header("Authorization", authToken)
-            val request = builder.build()
-            chain.proceed(request)
-        }
-        .build()
+            .addInterceptor { chain ->
+                val original = chain.request()
+                val builder = original.newBuilder()
+                        .header("Accept", "application/vnd.github.v3+json")
+                        .header("Authorization", authToken)
+                val request = builder.build()
+                chain.proceed(request)
+            }
+            .build()
 
     return Retrofit.Builder()
-        .baseUrl("https://api.github.com")
-        .addConverterFactory(JacksonConverterFactory.create(jacksonObjectMapper()))
-        .client(httpClient)
-        .build()
-        .create(GitHubServiceApiDef::class.java)
-        .let(::GitHubServiceImpl)
+            .baseUrl("https://api.github.com")
+            .addConverterFactory(JacksonConverterFactory.create(jacksonObjectMapper()))
+            .client(httpClient)
+            .build()
+            .create(GitHubServiceApiDef::class.java)
+            .let(::GitHubServiceImpl)
 }
 
 class GitHubServiceImpl(private val apiService: GitHubServiceApiDef) : GitHubService {
@@ -54,17 +51,17 @@ class GitHubServiceImpl(private val apiService: GitHubServiceApiDef) : GitHubSer
     }
 
     fun getOrgRepos(callback: (List<Repo>) -> Unit) =
-        apiService.getOrgReposCall().onResponse {
-            callback(it.body() ?: throw ApiError(it.code(), it.message()))
-        }
+            apiService.getOrgReposCall().onResponse {
+                callback(it.body() ?: throw ApiError(it.code(), it.message()))
+            }
 
     fun getRepoContributors(repo: String, callback: (List<User>) -> Unit) =
-        apiService.getRepoContributorsCall(repo).onResponse {
-            callback(it.body() ?: throw ApiError(it.code(), it.message()))
-        }
+            apiService.getRepoContributorsCall(repo).onResponse {
+                callback(it.body() ?: throw ApiError(it.code(), it.message()))
+            }
 }
 
-class ApiError(val code: Int, message: String): Throwable(message)
+class ApiError(val code: Int, message: String) : Throwable(message)
 
 interface GitHubServiceApiDef {
     @GET("orgs/jetbrains/repos?per_page=100")
@@ -72,20 +69,20 @@ interface GitHubServiceApiDef {
 
     @GET("repos/jetbrains/{repo}/contributors?per_page=100")
     fun getRepoContributorsCall(
-        @Path("repo") repo: String
+            @Path("repo") repo: String
     ): Call<List<User>>
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Repo(
-    val id: Long,
-    val name: String
+        val id: Long,
+        val name: String
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class User(
-    val login: String,
-    val contributions: Int
+        val login: String,
+        val contributions: Int
 )
 
 inline fun <T> Call<T>.onResponse(crossinline callback: (Response<T>) -> Unit) {

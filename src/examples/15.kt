@@ -4,7 +4,7 @@ import kotlinx.coroutines.*
 
 fun main() = runBlocking<Unit> {
     supervisorScope {
-        launch(CoroutineExceptionHandler { _, _ ->  }) {
+        launch(CoroutineExceptionHandler { _, _ -> }) {
             delay(1000)
             throw AssertionError("Cancelled")
         }

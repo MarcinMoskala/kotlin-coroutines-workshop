@@ -1,6 +1,5 @@
 package backend
 
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.jupiter.api.AfterEach
@@ -14,7 +13,7 @@ class ApiTests {
         cleanupApi()
     }
 
-    class FakeEmailService: EmailService {
+    class FakeEmailService : EmailService {
         var emailsSend = listOf<Pair<String, String>>()
 
         override suspend fun sendEmail(to: String, body: String) {
@@ -22,7 +21,7 @@ class ApiTests {
         }
     }
 
-    class FakeDatabase: Database {
+    class FakeDatabase : Database {
         var users = listOf<User>()
 
         override suspend fun getUsers(): List<User> {
