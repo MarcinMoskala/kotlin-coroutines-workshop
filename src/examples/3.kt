@@ -3,7 +3,7 @@ package examples
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.junit.jupiter.api.Test
+import org.junit.Test
 
 suspend fun main() {
     GlobalScope.launch {
