@@ -8,13 +8,13 @@ fun main() {
     }
     val value2 = GlobalScope.async {
         delay(1000L)
-        10
+        20
     }
     val value3 = GlobalScope.async {
         delay(1000L)
-        100
+        300
     }
-    print("Calculating")
+    println("Calculating")
     runBlocking {
         print(value1.await() + value2.await() + value3.await())
     }
