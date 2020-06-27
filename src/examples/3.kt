@@ -3,9 +3,10 @@ package examples
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
-suspend fun main() {
+fun main() = runBlocking {
     GlobalScope.launch {
         delay(1000L)
         println("World!")
@@ -16,9 +17,9 @@ suspend fun main() {
 
 class MyTest {
     @Test
-    fun testMySuspendingFunction() {
+    fun testMySuspendingFunction() = runBlocking {
         var a = "AA"
-//        delay(1000)
+        delay(1000)
         assert(1 == 1)
     }
 }
