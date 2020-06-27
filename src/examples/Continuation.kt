@@ -1,7 +1,6 @@
 package examples
 
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
@@ -20,7 +19,7 @@ fun getConfig(continuation: Continuation<String>): Any  /* String & COROUTINE_SU
     if(cont.label == 0) {
         println("A")
         cont.label = 1
-        if(delay(cont, 1000) == COROUTINE_SUSPENDED) {
+        if(_delay(cont, 1000) == COROUTINE_SUSPENDED) {
             return COROUTINE_SUSPENDED
         }
     }
@@ -49,7 +48,7 @@ val EXECUTOR = Executors.newSingleThreadScheduledExecutor {
     Thread(it, "scheduler").apply { isDaemon = true }
 }
 
-fun delay(continuation: Continuation<*>, time: Long): Any? {
+fun _delay(continuation: Continuation<*>, time: Long): Any? {
     val cont = continuation as? `CoroutineExampleKt$delay` ?: `CoroutineExampleKt$delay`(continuation)
     EXECUTOR.schedule({ cont.resume(Unit) }, time, SECONDS)
     return COROUTINE_SUSPENDED

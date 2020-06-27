@@ -19,8 +19,9 @@ class Latte(milk: Milk, espresso: Espresso) : Coffee() {
 suspend fun main() = coroutineScope<Unit> {
     val orders = List(100) { Order("Customer$it", CoffeeType.values().random()) }
     val startTime = System.currentTimeMillis()
-    var ordersLeft = orders.size
 
+    // TODO: Reimplement it using coroutines
+    var ordersLeft = orders.size
     serveOrders(orders) { coffee, customer, barista ->
         println("Coffee $coffee for $customer made by $barista")
         ordersLeft--
@@ -31,7 +32,7 @@ suspend fun main() = coroutineScope<Unit> {
     }
 }
 
-// TODO - speed it up
+// TODO: Reimplement it using coroutines
 suspend fun serveOrders(orders: List<Order>, serveCoffee: (coffee: Coffee, customer: String, barista: String) -> Unit) {
     for (order in orders) {
         val groundCoffee = groundCoffee()
