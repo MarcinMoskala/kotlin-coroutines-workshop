@@ -84,6 +84,7 @@ class BasePresenterTests {
         threads.forEach {
             assert(it.name.startsWith("UIThread")) { "We should switch to UI thread, and now we are on ${it.name}" }
         }
+        assert(threads.isNotEmpty())
     }
 
     @Test
