@@ -10,14 +10,14 @@ fun main() = runBlocking<Unit> {
     print("Tweets: ${tweets.await()}")
 }
 
-suspend fun CoroutineScope.getUserDetails(): String {
-    val one = async { getUserName() }
-    val two = async { getFollowersNumber() }
-    return "The answer is ${one.await() + two.await()}"
+suspend fun CoroutineScope.getUserDetails(): Details {
+    val userName = async { getUserName() }
+    val followersNumber = async { getFollowersNumber() }
+    return Details(userName.await(), followersNumber.await())
 }
 
-class Details(val name: String, val followers: Int)
-class Tweet(val text: String)
+data class Details(val name: String, val followers: Int)
+data class Tweet(val text: String)
 
 fun getFollowersNumber(): Int = error("Service exception")
 

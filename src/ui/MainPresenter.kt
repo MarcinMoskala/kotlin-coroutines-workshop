@@ -4,17 +4,18 @@ import java.util.*
 
 class MainPresenter(
         val view: MainView,
-        val repo: NetworkRepository
+        val userRepo: UserRepository,
+        val newsRepo: NewsRepository
 ) : BasePresenter(view::onError) {
 
     fun onCreate() {
         // TODO Uncomment
 //        launch {
-//            val user = repo.getUser()
+//            val user = userRepo.getUser()
 //            view.showUserData(user)
 //        }
 //        launch {
-//            val news = repo.getNews()
+//            val news = newsRepo.getNews()
 //                    .sortedByDescending { it.date }
 //            view.showNews(news)
 //        }
@@ -27,10 +28,13 @@ interface MainView {
     fun showNews(news: List<News>)
 }
 
-interface NetworkRepository {
+interface UserRepository {
     suspend fun getUser(): UserData
+}
+
+interface NewsRepository {
     suspend fun getNews(): List<News>
 }
 
-class UserData()
-class News(val date: Date)
+data class UserData(val name: String)
+data class News(val date: Date)
