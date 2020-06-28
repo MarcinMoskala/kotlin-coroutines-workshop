@@ -1,9 +1,16 @@
 package structured
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.util.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import java.time.ZonedDateTime
+import java.util.Random
+import java.util.concurrent.atomic.AtomicInteger
 
 // We have a worker who makes machines every 800ms as long as there is less than 5 of them.
 //   He won't produce more than 1000 machines. Please, use `repeat(1000)` instead of `while(true)`
@@ -34,9 +41,15 @@ class StandardFactoryControl : FactoryControl {
     private var broken = false
     private var waiting = false
     private var codes = listOf<String>()
+    private var lastMachineProducedTimestamp: ZonedDateTime? = null
 
-    override fun makeMachine(): Machine = StandardMachine()
-            .also { println("Newly created machine") }
+    override fun makeMachine(): Machine = when {
+        lastMachineProducedTimestamp?.let { ZonedDateTime.now() > it.plusNanos(700_000_000) } == false ->
+            throw IncorrectUseError("Need to wait 800ms between making machines")
+        else -> StandardMachine()
+                .also { lastMachineProducedTimestamp = ZonedDateTime.now() }
+                .also { println("Newly created machine") }
+    }
 
     override fun storeCode(code: String) {
         if (waiting || broken) {
@@ -59,15 +72,20 @@ interface Machine {
 
 class StandardMachine : Machine {
     private var broken = false
+    private var lastCodeProducedTimestamp: ZonedDateTime? = null
 
     override fun produce(): String = when {
-        broken -> throw BrokenMachineError()
+        broken ->
+            throw BrokenMachineError()
+        lastCodeProducedTimestamp?.let { ZonedDateTime.now() > it.plusSeconds(1) } == false ->
+            throw IncorrectUseError("Need to wait 1s between uses of the same machine")
         random.nextInt(8) == 0 -> {
             broken = true
             println("Machine broken")
             throw ProductionError()
         }
         else -> (1..5).map { letters[random.nextInt(letters.size)] }.joinToString(separator = "")
+                .also { lastCodeProducedTimestamp = ZonedDateTime.now() }
                 .also { println("Newly produced code $it") }
     }
 
@@ -79,3 +97,4 @@ class StandardMachine : Machine {
 
 class ProductionError() : Throwable()
 class BrokenMachineError() : Throwable()
+class IncorrectUseError(message: String) : Throwable(message)
