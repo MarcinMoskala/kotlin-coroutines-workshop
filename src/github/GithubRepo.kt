@@ -42,35 +42,17 @@ fun createGitHubService(username: String, password: String): GitHubService {
 }
 
 class GitHubServiceImpl(private val apiService: GitHubServiceApiDef) : GitHubService {
-    override suspend fun getOrgRepos(): List<Repo> = suspendCoroutine { cont ->
-        getOrgRepos { cont.resume(it) }
-    }
+    override suspend fun getOrgRepos(): List<Repo> = TODO()
 
-    override suspend fun getRepoContributors(repo: String): List<User> = suspendCoroutine { cont ->
-        getRepoContributors(repo) { cont.resume(it) }
-    }
-
-    fun getOrgRepos(callback: (List<Repo>) -> Unit) =
-            apiService.getOrgReposCall().onResponse {
-                callback(it.body() ?: throw ApiError(it.code(), it.message()))
-            }
-
-    fun getRepoContributors(repo: String, callback: (List<User>) -> Unit) =
-            apiService.getRepoContributorsCall(repo).onResponse {
-                callback(it.body() ?: throw ApiError(it.code(), it.message()))
-            }
+    override suspend fun getRepoContributors(repo: String): List<User> = TODO()
 }
-
-class ApiError(val code: Int, message: String) : Throwable(message)
 
 interface GitHubServiceApiDef {
     @GET("orgs/jetbrains/repos?per_page=100")
     fun getOrgReposCall(): Call<List<Repo>>
 
     @GET("repos/jetbrains/{repo}/contributors?per_page=100")
-    fun getRepoContributorsCall(
-            @Path("repo") repo: String
-    ): Call<List<User>>
+    fun getRepoContributorsCall(@Path("repo") repo: String): Call<List<User>>
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -84,15 +66,3 @@ data class User(
         val login: String,
         val contributions: Int
 )
-
-inline fun <T> Call<T>.onResponse(crossinline callback: (Response<T>) -> Unit) {
-    enqueue(object : Callback<T> {
-        override fun onResponse(call: Call<T>, response: Response<T>) {
-            callback(response)
-        }
-
-        override fun onFailure(call: Call<T>, t: Throwable) {
-            throw t
-        }
-    })
-}
