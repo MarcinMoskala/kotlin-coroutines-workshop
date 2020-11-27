@@ -18,10 +18,6 @@ fun producingUnits(num: Int): Flow<Unit> = TODO()
 // Adds a delay of time `timeMillis` between elements
 fun <T> Flow<T>.delayEach(timeMillis: Long): Flow<T> = TODO()
 
-// Produces not only elements, but the whole history till now
-// For instance flowOf(1, "A", 'C').withHistory() -> [[1], [1, A], [1, A, C]]
-fun <T> Flow<T>.withHistory(): Flow<List<T>> = TODO()
-
 // Should transform Unit's to toggled boolean value starting from true
 // For instance flowOf(Unit, Unit, Unit, Unit).toNextNumbers() -> [true, false, true, false]
 fun Flow<Unit>.toToggle(): Flow<Boolean> = TODO()
@@ -30,12 +26,16 @@ fun Flow<Unit>.toToggle(): Flow<Boolean> = TODO()
 // For instance flowOf(Unit, Unit, Unit, Unit).toNextNumbers() -> [1, 2, 3, 4]
 fun Flow<Unit>.toNextNumbers(): Flow<Int> = TODO()
 
+// Produces not only elements, but the whole history till now
+// For instance flowOf(1, "A", 'C').withHistory() -> [[], [1], [1, A], [1, A, C]]
+fun <T> Flow<T>.withHistory(): Flow<List<T>> = TODO()
+
 // Should create a flow that every `tickEveryMillis` should emit next numbers from `startNum` to `endNum`
 fun makeTimer(tickEveryMillis: Long, startNum: Int, endNum: Int): Flow<Int> = TODO()
 
 // Based on two light switches, should decide if the general light should be switched on.
 // Should be if one is true and another is false
-fun TestCoroutineScope.makeLightSwitch(switch1: Flow<Boolean>, switch2: Flow<Boolean>): Flow<Boolean> = TODO()
+fun makeLightSwitch(switch1: Flow<Boolean>, switch2: Flow<Boolean>): Flow<Boolean> = TODO()
 
 // Based on two light switches, should decide if the general light should be switched on.
 // Should be if one is turned on and another is off
