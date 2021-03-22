@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 data class User(val name: String)
 
 interface UserRepository {
-    fun takePage(num: Int): List<User>
+    fun takePage(pageNumber: Int): List<User>
 }
 
 fun makeUsersSequence(repository: UserRepository): Sequence<User> = TODO()
@@ -28,6 +28,6 @@ internal class UsersSequenceTests {
         val users = List(size) { User("User$it") }
         var timesUsed = 0
 
-        override fun takePage(num: Int): List<User> = users.dropLast(pageSize * num).take(pageSize).also { timesUsed++ }
+        override fun takePage(pageNumber: Int): List<User> = users.dropLast(pageSize * pageNumber).take(pageSize).also { timesUsed++ }
     }
 }
