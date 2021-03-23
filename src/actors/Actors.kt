@@ -13,7 +13,7 @@ fun main() = runBlocking<Unit> {
     setupFactory(StandardFactoryControl())
 }
 
-fun CoroutineScope.setupFactory(control: FactoryControl) = launch(Job()) {
+fun CoroutineScope.setupFactory(control: FactoryControl) = launch {
     val managerChannel = managerActor(control)
     val workerChannel = workerActor(control, managerChannel)
     launch {
