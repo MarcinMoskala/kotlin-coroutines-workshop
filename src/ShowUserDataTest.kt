@@ -3,19 +3,13 @@ package userdata
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Before
 import org.junit.Test
-import structured.FactoryControl
-import structured.Machine
-import structured.ProductionError
-import structured.setupFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @ObsoleteCoroutinesApi
 @Suppress("FunctionName")
-class StructuredTests {
+class ShowUserDataTest {
 
     @Test(timeout = 3000)
     fun `should show data on view`() = runBlocking {

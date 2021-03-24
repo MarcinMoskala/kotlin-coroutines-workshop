@@ -8,7 +8,7 @@ suspend fun main() {
     measureTimeMillis {
         ('A'..'C').asFlow()
                 .flatMapConcat { flowFrom(it) }
-                .collect { print(it) } // A_0 A_1 A_2 B_0 B_1 B_2 C_0 C_1 C_2
+                .collect { print(it) } // 0_A 1_A 2_A 0_B 1_B 2_B 0_C 1_C 2_C
     }.let(::print) // 9060
 }
 

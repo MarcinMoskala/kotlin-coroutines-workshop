@@ -4,10 +4,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
 fun main() = runBlocking<Unit> {
-    val details = getUserDetails()
+    val details = try {
+        getUserDetails()
+    } catch (e: Error) {
+        null
+    }
     val tweets = async { getTweets() }
-    print("User: $details")
-    print("Tweets: ${tweets.await()}")
+    println("User: $details")
+    println("Tweets: ${tweets.await()}")
 }
 
 suspend fun CoroutineScope.getUserDetails(): Details {
@@ -19,7 +23,7 @@ suspend fun CoroutineScope.getUserDetails(): Details {
 data class Details(val name: String, val followers: Int)
 data class Tweet(val text: String)
 
-fun getFollowersNumber(): Int = error("Service exception")
+fun getFollowersNumber(): Int = throw Error("Service exception")
 
 suspend fun getUserName(): String {
     delay(500)

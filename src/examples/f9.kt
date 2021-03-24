@@ -12,6 +12,6 @@ suspend fun main() {
         ('A'..'C').asFlow()
                 .onEach { delay(1500) }
                 .flatMapLatest { flowFrom(it) }
-                .collect { print(it) } // A_0 C_0 C_1 C_2
-    }.let(::print) // 1058
+                .collect { print(it) } // 0_A 0_B 0_C 1_C 2_C
+    }.let(::print) // 7656
 }

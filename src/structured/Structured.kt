@@ -1,16 +1,11 @@
 package structured
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import java.time.ZonedDateTime
 import java.util.Random
-import java.util.concurrent.atomic.AtomicInteger
 
 // We have a worker who makes machines every 800ms as long as there is less than 5 of them.
 //   He won't produce more than 1000 machines. Please, use `repeat(1000)` instead of `while(true)`

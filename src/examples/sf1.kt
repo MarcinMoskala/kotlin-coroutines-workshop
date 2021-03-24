@@ -11,7 +11,7 @@ suspend fun main() = coroutineScope {
     delay(1000)
 
     launch {
-        state.collect { println("Value changed to $it") } // Value changed to 2
+        state.collect { println("Value changed to $it") } // Value changed to 1
     }
 
     delay(1000)

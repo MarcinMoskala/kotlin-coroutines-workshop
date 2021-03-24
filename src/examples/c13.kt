@@ -15,7 +15,7 @@ fun main() = runBlocking<Unit> {
         }
     }
 
-    delay(100)
+    delay(150)
     println("Calling channel...")
     channel.consumeEach { value -> println(value) }
     println("Consuming again...")

@@ -1,11 +1,16 @@
 package flow
 
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import java.util.concurrent.atomic.AtomicInteger
@@ -104,9 +109,9 @@ class FlowTests {
         val emittedNum = AtomicInteger()
 
         producingUnits(100)
-                .delayEach(1000)
-                .onEach { emittedNum.incrementAndGet() }
-                .launchIn(this)
+            .delayEach(1000)
+            .onEach { emittedNum.incrementAndGet() }
+            .launchIn(this)
 
         assertEquals(0, emittedNum.get())
 
@@ -128,10 +133,10 @@ class FlowTests {
         val mutex = Mutex()
         var ticked = listOf<Int>()
         makeTimer(1000, 10, 20)
-                .onEach {
-                    mutex.withLock { ticked += it }
-                }
-                .launchIn(this)
+            .onEach {
+                mutex.withLock { ticked += it }
+            }
+            .launchIn(this)
 
         assertEquals(listOf(10), mutex.withLock { ticked })
 
@@ -152,12 +157,12 @@ class FlowTests {
     fun `makeTimer if delayed in between, do not provide old values but only shows the last one`() = runBlockingTest {
         val maxValue = 20
         val res = makeTimer(100, 1, maxValue)
-                .onEach {
-                    if (it == 1) delay(50) // To make it clearly after timer delay
-                    // We don't need to check more often than every 0.5s
-                    delay(500)
-                }
-                .toList()
+            .onEach {
+                if (it == 1) delay(50) // To make it clearly after timer delay
+                // We don't need to check more often than every 0.5s
+                delay(500)
+            }
+            .toList()
 
         assertEquals(listOf(1, 6, 11, 16, 20), res)
     }
