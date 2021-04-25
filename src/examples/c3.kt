@@ -10,9 +10,8 @@ fun main() = runBlocking<Unit> {
     // Same as Channel<String>(Channel.RENDEZVOUS)
 
     launch {
-        var i = 1
         repeat(5) {
-            channel.send("Ping ${i++}")
+            channel.send("Ping $it")
             println("Message sent")
         }
         channel.close()
@@ -20,7 +19,7 @@ fun main() = runBlocking<Unit> {
 
     // Listener
     launch {
-        var i = 1
+        delay(1000)
         for (text in channel) {
             println(text)
             delay(1000)

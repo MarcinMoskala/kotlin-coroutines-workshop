@@ -10,8 +10,8 @@ import kotlinx.coroutines.runBlocking
 fun CoroutineScope.produceNumbers() = produce {
     var x = 1 // start from 1
     while (true) {
-        send(x++)
         delay(100)
+        send(x++)
     }
 }
 

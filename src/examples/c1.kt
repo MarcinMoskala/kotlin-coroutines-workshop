@@ -5,18 +5,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-fun main() = runBlocking {
+fun main(): Unit = runBlocking {
     val channel = Channel<Int>()
     launch {
         repeat(5) { index ->
             channel.send(index * 2)
-            print("Producing next one")
+            println("Producing next one")
         }
     }
 
     repeat(5) {
-        val received = channel.receive()
         delay(1000)
-        print(received)
+        val received = channel.receive()
+        println(received)
     }
 }

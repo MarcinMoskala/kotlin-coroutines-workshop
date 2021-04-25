@@ -3,6 +3,7 @@ package actors
 import assertThrows
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -96,11 +97,12 @@ class ActorsTests {
     fun `Function creates a new machine every 800ms every time if all machines are failing`() = runBlockingTest {
         val control = FakeFactoryControl(machineProducer = ::FailingMachine)
 
-        setupFactory(control)
+        val job = launch { setupFactory(control) }
         for (i in 0..20) {
             assertEquals(i, control.createdMachines.size)
             delay(800)
         }
+        job.cancel()
     }
 
     @Test

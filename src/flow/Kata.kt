@@ -1,11 +1,16 @@
 package flow
 
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import java.util.concurrent.atomic.AtomicInteger
@@ -18,10 +23,6 @@ fun producingUnits(num: Int): Flow<Unit> = TODO()
 // Adds a delay of time `timeMillis` between elements
 fun <T> Flow<T>.delayEach(timeMillis: Long): Flow<T> = TODO()
 
-// Produces not only elements, but the whole history till now
-// For instance flowOf(1, "A", 'C').withHistory() -> [[1], [1, A], [1, A, C]]
-fun <T> Flow<T>.withHistory(): Flow<List<T>> = TODO()
-
 // Should transform Unit's to toggled boolean value starting from true
 // For instance flowOf(Unit, Unit, Unit, Unit).toNextNumbers() -> [true, false, true, false]
 fun Flow<Unit>.toToggle(): Flow<Boolean> = TODO()
@@ -30,12 +31,16 @@ fun Flow<Unit>.toToggle(): Flow<Boolean> = TODO()
 // For instance flowOf(Unit, Unit, Unit, Unit).toNextNumbers() -> [1, 2, 3, 4]
 fun Flow<Unit>.toNextNumbers(): Flow<Int> = TODO()
 
+// Produces not only elements, but the whole history till now
+// For instance flowOf(1, "A", 'C').withHistory() -> [[], [1], [1, A], [1, A, C]]
+fun <T> Flow<T>.withHistory(): Flow<List<T>> = TODO()
+
 // Should create a flow that every `tickEveryMillis` should emit next numbers from `startNum` to `endNum`
 fun makeTimer(tickEveryMillis: Long, startNum: Int, endNum: Int): Flow<Int> = TODO()
 
 // Based on two light switches, should decide if the general light should be switched on.
 // Should be if one is true and another is false
-fun TestCoroutineScope.makeLightSwitch(switch1: Flow<Boolean>, switch2: Flow<Boolean>): Flow<Boolean> = TODO()
+fun makeLightSwitch(switch1: Flow<Boolean>, switch2: Flow<Boolean>): Flow<Boolean> = TODO()
 
 // Based on two light switches, should decide if the general light should be switched on.
 // Should be if one is turned on and another is off
@@ -104,9 +109,9 @@ class FlowTests {
         val emittedNum = AtomicInteger()
 
         producingUnits(100)
-                .delayEach(1000)
-                .onEach { emittedNum.incrementAndGet() }
-                .launchIn(this)
+            .delayEach(1000)
+            .onEach { emittedNum.incrementAndGet() }
+            .launchIn(this)
 
         assertEquals(0, emittedNum.get())
 
@@ -128,10 +133,10 @@ class FlowTests {
         val mutex = Mutex()
         var ticked = listOf<Int>()
         makeTimer(1000, 10, 20)
-                .onEach {
-                    mutex.withLock { ticked += it }
-                }
-                .launchIn(this)
+            .onEach {
+                mutex.withLock { ticked += it }
+            }
+            .launchIn(this)
 
         assertEquals(listOf(10), mutex.withLock { ticked })
 
@@ -152,12 +157,12 @@ class FlowTests {
     fun `makeTimer if delayed in between, do not provide old values but only shows the last one`() = runBlockingTest {
         val maxValue = 20
         val res = makeTimer(100, 1, maxValue)
-                .onEach {
-                    if (it == 1) delay(50) // To make it clearly after timer delay
-                    // We don't need to check more often than every 0.5s
-                    delay(500)
-                }
-                .toList()
+            .onEach {
+                if (it == 1) delay(50) // To make it clearly after timer delay
+                // We don't need to check more often than every 0.5s
+                delay(500)
+            }
+            .toList()
 
         assertEquals(listOf(1, 6, 11, 16, 20), res)
     }

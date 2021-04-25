@@ -3,7 +3,7 @@ package examples.c8
 import examples.massiveRun
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.runBlocking
 
@@ -22,8 +22,8 @@ fun CoroutineScope.counterActor() = actor<CounterMsg> {
 }
 
 fun main(args: Array<String>) = runBlocking<Unit> {
-    val counter = counterActor()
-    GlobalScope.massiveRun { counter.send(IncCounter) }
+    val counter: SendChannel<CounterMsg> = counterActor()
+    massiveRun { counter.send(IncCounter) }
     val response = CompletableDeferred<Int>()
     counter.send(GetCounter(response))
     println("Counter = ${response.await()}")

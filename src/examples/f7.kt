@@ -9,6 +9,6 @@ suspend fun main() {
     measureTimeMillis {
         ('A'..'C').asFlow()
                 .flatMapMerge { flowFrom(it) }
-                .collect { print(it) } // 0_B 0_A 0_C 1_B 1_C 1_A 2_C 2_B 2_A
+                .collect { print(it) } // 0_A 0_C 0_B 1_C 1_B 1_A 2_B 2_A 2_C
     }.let(::print) // 3117
 }

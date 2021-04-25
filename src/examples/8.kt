@@ -1,11 +1,11 @@
 package examples
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
-import kotlinx.coroutines.runBlocking
 
-fun main() = runBlocking<Unit> {
+suspend fun main() = coroutineScope<Unit> {
     fun getThreadName() = Thread.currentThread().name
     launch {
         println("main runBlocking      : I'm working in thread ${getThreadName()}")

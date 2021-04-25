@@ -1,11 +1,12 @@
 package ui
 
+import kotlinx.coroutines.launch
 import java.util.*
 
 class MainPresenter(
-        val view: MainView,
-        val userRepo: UserRepository,
-        val newsRepo: NewsRepository
+    private val view: MainView,
+    private val userRepo: UserRepository,
+    private val newsRepo: NewsRepository
 ) : BasePresenter(view::onError) {
 
     fun onCreate() {

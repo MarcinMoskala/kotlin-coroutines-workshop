@@ -4,14 +4,14 @@ import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 
-data class CoroutineName(
-        val name: String
-) : AbstractCoroutineContextElement(CoroutineName) {
-
-    companion object Key : CoroutineContext.Key<CoroutineName>
-}
-
-
-fun main() {
-    CoroutineName
-}
+//data class CoroutineName(
+//        val name: String
+//) : AbstractCoroutineContextElement(CoroutineName) {
+//
+//    companion object Key : CoroutineContext.Key<CoroutineName>
+//}
+//
+//
+//fun main() {
+//    CoroutineName
+//}

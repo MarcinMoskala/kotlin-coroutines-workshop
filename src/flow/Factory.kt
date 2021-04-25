@@ -1,17 +1,13 @@
 package flow
 
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.util.*
+import java.util.Random
 
 // Finish the below implementation using a flow.
 //
 
 fun main() = runBlocking<Unit> {
-    launch(Job()) { setupFactory(StandardFactoryControl()) }
-    delay(1851)
+    setupFactory(StandardFactoryControl())
 }
 
 suspend fun setupFactory(control: FactoryControl) {
@@ -29,7 +25,7 @@ class StandardFactoryControl : FactoryControl {
     private var codes = listOf<String>()
 
     override fun makeMachine(): Machine = StandardMachine()
-            .also { println("Newly created machine") }
+        .also { println("Newly created machine") }
 
     override fun storeCode(code: String) {
         if (waiting || broken) {
@@ -53,9 +49,9 @@ class StandardMachine : Machine {
     private var broken = false
 
     override fun produce(): String =
-            if (broken) throw BrokenMachineError()
-            else (1..5).map { letters[random.nextInt(letters.size)] }.joinToString(separator = "")
-                    .also { println("Newly produced code $it") }
+        if (broken) throw BrokenMachineError()
+        else (1..5).map { letters[random.nextInt(letters.size)] }.joinToString(separator = "")
+            .also { println("Newly produced code $it") }
 
     companion object {
         private val letters = ('a'..'z') + ('0'..'9')

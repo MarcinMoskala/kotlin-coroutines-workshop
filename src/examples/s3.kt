@@ -1,17 +1,18 @@
 package examples.n2
 
 import examples.massiveRun
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import java.util.concurrent.Executors
 
 private var counter = 0
 
 fun main() = runBlocking {
-    val counterContext = newSingleThreadContext("CounterContext")
+    val counterContext = Executors.newSingleThreadExecutor()
+        .asCoroutineDispatcher()
 
-    GlobalScope.massiveRun {
+    massiveRun {
         withContext(counterContext) {
             counter++
         }

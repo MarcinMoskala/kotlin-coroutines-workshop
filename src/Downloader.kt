@@ -10,7 +10,7 @@ class NetworkService {
     }
 }
 
-class UserDownloader(val api: NetworkService) {
+class UserDownloader(private val api: NetworkService) {
     private val users = mutableListOf<User>()
 
     fun all(): List<User> = users

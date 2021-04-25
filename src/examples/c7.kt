@@ -6,7 +6,7 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.runBlocking
 
-fun CoroutineScope.produceNumbers() = produce<Int> {
+fun CoroutineScope.produceNumbers(): ReceiveChannel<Int> = produce {
     var x = 1
     while (true) send(x++) // infinite stream of integers starting from 1
 }

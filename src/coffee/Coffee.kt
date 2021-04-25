@@ -1,6 +1,7 @@
 package coffee
 
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 data class Order(val customer: String, val type: CoffeeType)
 enum class CoffeeType { ESPRESSO, LATE }
@@ -20,31 +21,28 @@ suspend fun main() = coroutineScope<Unit> {
     val orders = List(100) { Order("Customer$it", CoffeeType.values().random()) }
     val startTime = System.currentTimeMillis()
 
-    // TODO: Reimplement it using coroutines
-    var ordersLeft = orders.size
     serveOrders(orders) { coffee, customer, barista ->
         println("Coffee $coffee for $customer made by $barista")
-        ordersLeft--
-        if (ordersLeft == 0) {
-            val endTime = System.currentTimeMillis()
-            println("Done, took ${endTime - startTime}")
-        }
     }
+
+    val endTime = System.currentTimeMillis()
+    println("Done, took ${endTime - startTime}")
 }
 
-// TODO: Reimplement it using coroutines
-suspend fun serveOrders(orders: List<Order>, serveCoffee: (coffee: Coffee, customer: String, barista: String) -> Unit) {
+suspend fun serveOrders(orders: List<Order>, serveCoffee: (coffee: Coffee, customer: String, barista: String) -> Unit) = coroutineScope {
     for (order in orders) {
-        val groundCoffee = groundCoffee()
-        val espresso = makeEspresso(groundCoffee)
-        val coffee = when (order.type) {
-            CoffeeType.ESPRESSO -> espresso
-            CoffeeType.LATE -> {
-                val milk = brewMilk()
-                Latte(milk, espresso)
+        launch {
+            val groundCoffee = groundCoffee()
+            val espresso = makeEspresso(groundCoffee)
+            val coffee = when (order.type) {
+                CoffeeType.ESPRESSO -> espresso
+                CoffeeType.LATE -> {
+                    val milk = brewMilk()
+                    Latte(milk, espresso)
+                }
             }
+            serveCoffee(coffee, order.customer, "Bob")
         }
-        serveCoffee(coffee, order.customer, "Bob")
     }
 }
 
