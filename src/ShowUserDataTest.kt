@@ -24,7 +24,7 @@ class ShowUserDataTest {
         assertEquals(listOf(User("Ben", listOf(Friend("some-friend-id-1")), Profile("Example description"))), view.printed)
     }
 
-    @Test(timeout = 300)
+    @Test
     fun `should load user data asynchronously and not wait for notify`() = runBlocking {
         // given
         val repo = FakeUserDataRepository()
