@@ -1,36 +1,35 @@
 import kotlinx.coroutines.*
-import kotlin.random.Random
 
 class User(val name: String)
 
-class NetworkService {
-    suspend fun getUser(): User {
+interface NetworkService {
+    suspend fun getUser(id: Int): User
+}
+
+class FakeNetworkService : NetworkService {
+    override suspend fun getUser(id: Int): User {
         delay(2)
-        return User(Random.nextLong().toString())
+        return User("User$id")
     }
 }
 
 class UserDownloader(private val api: NetworkService) {
     private val users = mutableListOf<User>()
 
-    fun all(): List<User> = users
+    fun downloaded(): List<User> = users.toList()
 
-    suspend fun downloadNext(num: Int) = coroutineScope {
-        repeat(num) {
-            val newUser = api.getUser()
-            users.add(newUser)
-        }
+    suspend fun getUser(id: Int) {
+        val newUser = api.getUser(id)
+        users += newUser
     }
 }
 
-fun main() = runBlocking(Dispatchers.Default) {
-    val downloader = UserDownloader(NetworkService())
-    coroutineScope {
-        repeat(1000) {
-            launch {
-                downloader.downloadNext(1000)
-            }
+suspend fun main() = coroutineScope {
+    val downloader = UserDownloader(FakeNetworkService())
+    repeat(1_000_000) {
+        launch {
+            downloader.getUser(it)
         }
     }
-    print(downloader.all().size)
+    print(downloader.downloaded().size) // ~714725
 }
