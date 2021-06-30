@@ -1,5 +1,9 @@
 package continuation
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import kotlin.coroutines.resume
 import kotlin.test.assertEquals
@@ -18,50 +22,64 @@ class ContinuationStealTests {
         }
     }
 
-    @Test(timeout = 500)
-    fun `At the beginning function says "Before"`() {
+    @Test
+    fun `At the beginning function says "Before"`() = runBlockingTest {
         val fakeConsole = FakeConsole()
-        continuationSteal<String>(fakeConsole)
+        val job = launch {
+            continuationSteal<String>(fakeConsole)
+        }
+        delay(100)
         assertEquals("Before", fakeConsole.printed.first())
+        job.cancel()
     }
 
-    @Test(timeout = 500)
-    fun `At the end function says "After"`() {
+    @Test
+    fun `At the end function says "After"`() = runBlockingTest {
         val fakeConsole = FakeConsole()
-        val cont = continuationSteal<String>(fakeConsole)
-        cont?.resume(fakeText)
+        val job = launch {
+            continuationSteal<String>(fakeConsole)
+        }
+        continuation?.resume(fakeText)
         assertEquals("After", fakeConsole.printed.last())
     }
 
-    @Test(timeout = 500)
-    fun `In the middle, we suspend function`() {
+    @Test
+    fun `In the middle, we suspend function`() = runBlockingTest {
         val fakeConsole = FakeConsole()
-        val cont = continuationSteal<String>(fakeConsole)
+        val job = launch {
+            continuationSteal<String>(fakeConsole)
+        }
         assertEquals(mutableListOf<Any?>("Before"), fakeConsole.printed)
+        job.cancel()
     }
 
-    @Test(timeout = 500)
-    fun `Function should return continuation`() {
+    @Test
+    fun `Function should return continuation`() = runBlockingTest {
         val fakeConsole = FakeConsole()
-        val cont = continuationSteal<String>(fakeConsole)
-        assertNotNull(cont)
-        cont.resume(fakeText)
+        launch {
+            continuationSteal<String>(fakeConsole)
+        }
+        assertNotNull(continuation).resume(fakeText)
         assertEquals("After", fakeConsole.printed.last())
     }
 
-    @Test(timeout = 500)
-    fun `Only "Before" is printed before resume`() {
+    @Test
+    fun `Only "Before" is printed before resume`() = runBlockingTest {
         val fakeConsole = FakeConsole()
-        val cont = continuationSteal<String>(fakeConsole)
-        assertNotNull(cont)
+        val job = launch {
+            continuationSteal<String>(fakeConsole)
+        }
         assertEquals("Before", fakeConsole.printed.first())
+        job.cancel()
     }
 
-    @Test(timeout = 500)
-    fun `After resume function should print text to resume`() {
+    @Test
+    fun `After resume function should print text to resume`() = runBlockingTest {
         val fakeConsole = FakeConsole()
-        val cont = continuationSteal<String>(fakeConsole)
-        cont?.resume(fakeText)
+        launch {
+            continuationSteal<String>(fakeConsole)
+        }
+        continuation?.resume(fakeText)
         assertEquals(3, fakeConsole.printed.size)
         assertEquals(fakeText, fakeConsole.printed[1])
     }

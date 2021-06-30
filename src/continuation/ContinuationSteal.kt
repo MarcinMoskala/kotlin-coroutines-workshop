@@ -5,22 +5,23 @@ package continuation
 import kotlinx.coroutines.*
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 fun main(): Unit = runBlocking<Unit> {
-    val cont = continuationSteal<String>()
+    launch {
+        continuationSteal<String>()
+    }
     delay(1000)
-    cont?.resume("This is some text")
+    continuation?.resume("This is some text")
 }
 
-fun <T> continuationSteal(console: Console = Console()): Continuation<T>? = runBlocking {
-    var continuation: Continuation<T>? = null
-    GlobalScope.launch(Dispatchers.Unconfined) {
-        console.println("Before")
-        // TODO: Suspend in here and store continuation in continuation.
-        // TODO: After continuation resume, print using `console` the value that was passed.
-        console.println("After")
-    }
-    continuation
+var continuation: Continuation<String>? = null
+
+suspend fun <T> continuationSteal(console: Console = Console()) {
+    console.println("Before")
+    // TODO: Suspend in here and store continuation in continuation.
+    // TODO: After continuation resume, print using `console` the value that was passed.
+    console.println("After")
 }
 
 open class Console {
