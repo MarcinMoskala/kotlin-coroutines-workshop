@@ -10,8 +10,8 @@ fun printUser(token: String, continuation: Continuation<Nothing>): Any {
         if (continuation is MyFunctionContinuation) continuation
         else MyFunctionContinuation(continuation as Continuation<Unit>, token)
 
-    var result = continuation.result
-    var userId = continuation.userId
+    var result: Result<Any>? = continuation.result
+    var userId: String? = continuation.userId
     val userName: String
 
     if (continuation.label == 0) {
@@ -22,11 +22,11 @@ fun printUser(token: String, continuation: Continuation<Nothing>): Any {
         if (res == COROUTINE_SUSPENDED) {
             return COROUTINE_SUSPENDED
         }
-        result = Success(res)
+        result = Result.success(res)
     }
     if (continuation.label == 1) {
-        result?.throwOnFailure()
-        userId = (result as Success<String>).value
+        result!!.throwOnFailure()
+        userId = result.getOrNull() as String
         println("Got userId: $userId")
         continuation.label = 2
         continuation.userId = userId
@@ -34,11 +34,11 @@ fun printUser(token: String, continuation: Continuation<Nothing>): Any {
         if (res == COROUTINE_SUSPENDED) {
             return COROUTINE_SUSPENDED
         }
-        result = Success(res)
+        result = Result.success(res)
     }
     if (continuation.label == 2) {
-        result?.throwOnFailure()
-        userName = (result as Success<String>).value
+        result!!.throwOnFailure()
+        userName = result.getOrNull() as String
         println(User(userId as String, userName))
         println("After")
         return Unit
@@ -54,20 +54,16 @@ class MyFunctionContinuation(val completion: Continuation<Unit>, val token: Stri
     var result: Result<Any>? = null
     var userId: String? = null
 
-    override fun resumeWith(result: kotlin.Result<String>) {
-        this.result = result.toCustomResult()
+    override fun resumeWith(result: Result<String>) {
+        this.result = result
         val res = try {
             val r = printUser(token, this)
             if (r == COROUTINE_SUSPENDED) return
-            Success(r)
+            Result.success(r as Unit)
         } catch (e: Throwable) {
-            Failure(e)
+            Result.failure(e)
         }
-        val kotlinResult = when (res) {
-            is Success<*> -> kotlin.Result.success(res.value as Unit)
-            is Failure -> kotlin.Result.failure(res.exception)
-        }
-        completion.resumeWith(kotlinResult)
+        completion.resumeWith(res)
     }
 }
 
@@ -111,17 +107,8 @@ fun toStart() {
     Thread.sleep(3000) // No structured concurrency, so it is needed
 }
 
-// I used my own instead of built in, because it still cannot be returned
-sealed class Result<out T>
-data class Success<out T>(val value: T) : Result<T>()
-data class Failure(val exception: Throwable) : Result<Nothing>()
-
-fun <T> kotlin.Result<T>.toCustomResult(): Result<T> =
-    if (this.isSuccess) Success(this.getOrThrow())
-    else Failure(this.exceptionOrNull()!!)
-
 private fun Result<*>.throwOnFailure() {
-    if (this is Failure) throw this.exception
+    if (isFailure) throw exceptionOrNull()!!
 }
 
 private val COROUTINE_SUSPENDED = Any()
