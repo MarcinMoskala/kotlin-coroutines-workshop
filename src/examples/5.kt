@@ -1,21 +1,31 @@
-package examples
+package examples.e5
 
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 
-fun main() = runBlocking {
-    val job = Job()
-    launch(job) {
-        repeat(1000) { i ->
-            println("I'm sleeping $i ...")
-            delay(500L)
-        }
+suspend fun longTask() = coroutineScope {
+    launch {
+        delay(1000)
+        val name = coroutineContext[CoroutineName]?.name
+        println("[$name] Finished task 1")
     }
-    delay(1300L) // delay a bit
-    println("main: I'm tired of waiting!")
-    job.cancel()
-    job.join()
-    println("main: Now I can quit.")
+    launch {
+        delay(2000)
+        val name = coroutineContext[CoroutineName]?.name
+        println("[$name] Finished task 2")
+    }
+}
+
+fun main() = runBlocking(CoroutineName("Parent")) {
+    println("Before")
+    longTask()
+
+//    val job = launch(CoroutineName("Parent")) {
+//        longTask()
+//    }
+//    launch {
+//        delay(1500)
+//        job.cancel()
+//    }
+
+    println("After")
 }

@@ -1,19 +1,21 @@
 package examples
 
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 
-fun main() = runBlocking {
-    val job = launch {
-        repeat(1000) { i ->
-            println("I'm sleeping $i ...")
-            delay(500L)
-        }
-    }
-    delay(1300L) // delay a bit
-    println("main: I'm tired of waiting!")
-    job.cancel()
-    job.join()
-    println("main: Now I can quit.")
+suspend fun test(): Int = withTimeout(1500) {
+    delay(1000)
+    println("Still thinking")
+    delay(1000)
+    println("Done!")
+    42
 }
+
+suspend fun main(): Unit = coroutineScope {
+    try {
+        test()
+    } catch (e: TimeoutCancellationException) {
+        println("Cancelled")
+    }
+//    delay(1000)
+}
+
