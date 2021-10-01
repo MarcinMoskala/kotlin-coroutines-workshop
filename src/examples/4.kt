@@ -2,21 +2,16 @@ package examples
 
 import kotlinx.coroutines.*
 
-suspend fun longTask() = coroutineScope {
-    launch {
+suspend fun main() {
+    val a = coroutineScope {
         delay(1000)
-        val name = coroutineContext[CoroutineName]?.name
-        println("[$name] Finished task 1")
+        10
     }
-    launch {
-        delay(2000)
-        val name = coroutineContext[CoroutineName]?.name
-        println("[$name] Finished task 2")
+    println("a is calculated")
+    val b = coroutineScope {
+        delay(1000)
+        20
     }
-}
-
-fun main() = runBlocking(CoroutineName("Parent")) {
-    println("Before")
-    longTask()
-    println("After")
+    println(a) // 10
+    println(b) // 20
 }

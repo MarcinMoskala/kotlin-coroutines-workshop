@@ -26,7 +26,7 @@ class ContinuationStealTests {
     fun `At the beginning function says "Before"`() = runBlockingTest {
         val fakeConsole = FakeConsole()
         val job = launch {
-            continuationSteal<String>(fakeConsole)
+            continuationSteal(fakeConsole)
         }
         delay(100)
         assertEquals("Before", fakeConsole.printed.first())
@@ -37,7 +37,7 @@ class ContinuationStealTests {
     fun `At the end function says "After"`() = runBlockingTest {
         val fakeConsole = FakeConsole()
         val job = launch {
-            continuationSteal<String>(fakeConsole)
+            continuationSteal(fakeConsole)
         }
         continuation?.resume(fakeText)
         assertEquals("After", fakeConsole.printed.last())
@@ -47,7 +47,7 @@ class ContinuationStealTests {
     fun `In the middle, we suspend function`() = runBlockingTest {
         val fakeConsole = FakeConsole()
         val job = launch {
-            continuationSteal<String>(fakeConsole)
+            continuationSteal(fakeConsole)
         }
         assertEquals(mutableListOf<Any?>("Before"), fakeConsole.printed)
         job.cancel()
@@ -57,7 +57,7 @@ class ContinuationStealTests {
     fun `Function should return continuation`() = runBlockingTest {
         val fakeConsole = FakeConsole()
         launch {
-            continuationSteal<String>(fakeConsole)
+            continuationSteal(fakeConsole)
         }
         assertNotNull(continuation).resume(fakeText)
         assertEquals("After", fakeConsole.printed.last())
@@ -67,7 +67,7 @@ class ContinuationStealTests {
     fun `Only "Before" is printed before resume`() = runBlockingTest {
         val fakeConsole = FakeConsole()
         val job = launch {
-            continuationSteal<String>(fakeConsole)
+            continuationSteal(fakeConsole)
         }
         assertEquals("Before", fakeConsole.printed.first())
         job.cancel()
@@ -77,7 +77,7 @@ class ContinuationStealTests {
     fun `After resume function should print text to resume`() = runBlockingTest {
         val fakeConsole = FakeConsole()
         launch {
-            continuationSteal<String>(fakeConsole)
+            continuationSteal(fakeConsole)
         }
         continuation?.resume(fakeText)
         assertEquals(3, fakeConsole.printed.size)
