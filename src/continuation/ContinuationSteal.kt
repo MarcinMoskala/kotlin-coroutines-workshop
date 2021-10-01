@@ -9,7 +9,7 @@ import kotlin.coroutines.suspendCoroutine
 
 fun main(): Unit = runBlocking<Unit> {
     launch {
-        continuationSteal<String>()
+        continuationSteal()
     }
     delay(1000)
     continuation?.resume("This is some text")
@@ -17,7 +17,7 @@ fun main(): Unit = runBlocking<Unit> {
 
 var continuation: Continuation<String>? = null
 
-suspend fun <T> continuationSteal(console: Console = Console()) {
+suspend fun continuationSteal(console: Console = Console()) {
     console.println("Before")
     // TODO: Suspend in here and store continuation in continuation.
     // TODO: After continuation resume, print using `console` the value that was passed.
