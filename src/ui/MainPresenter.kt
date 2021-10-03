@@ -10,16 +10,15 @@ class MainPresenter(
 ) : BasePresenter(view::onError) {
 
     fun onCreate() {
-        // TODO Uncomment
-//        launch {
-//            val user = userRepo.getUser()
-//            view.showUserData(user)
-//        }
-//        launch {
-//            val news = newsRepo.getNews()
-//                    .sortedByDescending { it.date }
-//            view.showNews(news)
-//        }
+        scope.launch {
+            val user = userRepo.getUser()
+            view.showUserData(user)
+        }
+        scope.launch {
+            val news = newsRepo.getNews()
+                    .sortedByDescending { it.date }
+            view.showNews(news)
+        }
     }
 }
 
