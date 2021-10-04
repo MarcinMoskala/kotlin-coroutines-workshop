@@ -11,12 +11,12 @@ fun main() = measureTimeMillis {
     runBlocking {
         measureTimeMillis {
             (1..5).asFlow()
-                    .onEach { event -> delay(100) }
-                    .launchIn(this)
+                .onEach { event -> delay(100) }
+                .launchIn(this)
 
             (1..5).asFlow()
-                    .onEach { event -> delay(100) }
-                    .launchIn(this)
+                .onEach { event -> delay(100) }
+                .launchIn(this)
 
         }.let(::print) // 15
     }

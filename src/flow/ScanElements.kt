@@ -20,6 +20,9 @@ class ScanElementsTests {
         assertEquals(listOf(), emptyList<Int>().asFlow().scanElements(0) { acc, elem -> acc + elem }.toList())
         assertEquals(listOf(1), (1..1).asFlow().scanElements(0) { acc, elem -> acc + elem }.toList())
         assertEquals(listOf(1, 3, 6, 10, 15), (1..5).asFlow().scanElements(0) { acc, elem -> acc + elem }.toList())
-        assertEquals(listOf("A", "AB", "ABC", "ABCD"), ('A'..'D').asFlow().scanElements("") { acc, elem -> acc + elem }.toList())
+        assertEquals(
+            listOf("A", "AB", "ABC", "ABCD"),
+            ('A'..'D').asFlow().scanElements("") { acc, elem -> acc + elem }.toList()
+        )
     }
 }

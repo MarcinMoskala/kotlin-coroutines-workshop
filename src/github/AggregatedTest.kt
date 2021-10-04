@@ -45,8 +45,8 @@ internal class AggregatedTest {
     fun `Accumulates contributions of multiple users user`() = runBlockingTest {
         val list = getAggregatedContributions(FakeStaticSyncService(listOf(repo1, repo2), listOf(user1, user1, user2)))
         val expected = listOf(
-                User(user1.login, user1.contributions * 4),
-                User(user2.login, user2.contributions * 2)
+            User(user1.login, user1.contributions * 4),
+            User(user2.login, user2.contributions * 2)
         ).sortedBy { it.contributions }
         assertEquals(expected, list.sortedBy { it.contributions })
     }

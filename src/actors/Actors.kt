@@ -26,9 +26,16 @@ fun CoroutineScope.setupFactory(control: FactoryControl) = launch {
 
 fun CoroutineScope.managerActor(control: FactoryControl): SendChannel<ManagerMessages> = TODO()
 
-fun CoroutineScope.workerActor(control: FactoryControl, managerChannel: SendChannel<ManagerMessages>): SendChannel<WorkerMessages> = TODO()
+fun CoroutineScope.workerActor(
+    control: FactoryControl,
+    managerChannel: SendChannel<ManagerMessages>
+): SendChannel<WorkerMessages> = TODO()
 
-fun CoroutineScope.startMachine(control: FactoryControl, workerChannel: SendChannel<WorkerMessages>, managerChannel: SendChannel<ManagerMessages>) {
+fun CoroutineScope.startMachine(
+    control: FactoryControl,
+    workerChannel: SendChannel<WorkerMessages>,
+    managerChannel: SendChannel<ManagerMessages>
+) {
     val machine = control.makeMachine()
     launch {
         try {
@@ -57,7 +64,7 @@ class StandardFactoryControl : FactoryControl {
     private var codes = listOf<String>()
 
     override fun makeMachine(): Machine = StandardMachine()
-            .also { println("Newly created machine") }
+        .also { println("Newly created machine") }
 
     override fun storeCode(code: String) {
         if (waiting || broken) {
@@ -89,7 +96,7 @@ class StandardMachine : Machine {
             throw ProductionError()
         }
         else -> (1..5).map { letters[random.nextInt(letters.size)] }.joinToString(separator = "")
-                .also { println("Newly produced code $it") }
+            .also { println("Newly produced code $it") }
     }
 
     companion object {

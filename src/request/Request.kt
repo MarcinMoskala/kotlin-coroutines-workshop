@@ -27,11 +27,13 @@ class RequestTest {
     fun `Function does return the best student in the semester`() = runBlocking {
         val semester = "19L"
         val best = Student(2, 95.0, semester)
-        val repo = ImmediateFakeStudentRepo(listOf(
+        val repo = ImmediateFakeStudentRepo(
+            listOf(
                 Student(1, 90.0, semester),
                 best,
                 Student(3, 50.0, semester)
-        ))
+            )
+        )
         val chosen = getBestStudent(semester, repo)
         assertEquals(best, chosen)
     }
@@ -73,20 +75,24 @@ class RequestTest {
             getBestStudent("AAA", repo)
         }
         delay(1000)
-        assertEquals(0, repo.studentsReturned, "Looks like some requests were still running after the first one had an error")
+        assertEquals(
+            0,
+            repo.studentsReturned,
+            "Looks like some requests were still running after the first one had an error"
+        )
     }
 }
 
 class ImmediateFakeStudentRepo(
-        private val students: List<Student>
+    private val students: List<Student>
 ) : StudentsRepository {
 
     override suspend fun getStudentIds(semester: String): List<Int> =
-            students.filter { it.semester == semester }
-                    .map { it.id }
+        students.filter { it.semester == semester }
+            .map { it.id }
 
     override suspend fun getStudent(id: Int): Student =
-            students.first { it.id == id }
+        students.first { it.id == id }
 }
 
 inline fun assertTimeAround(expectedTime: Int, upperMargin: Int = 100, body: () -> Unit) {

@@ -12,8 +12,8 @@ fun main() = runBlocking<Unit> {
             if (it == 2) throw RuntimeException("Error on $it")
         }
     }.onEach { println("On each $it") }
-            .onStart { println("Starting flow") }
-            .onCompletion { println("Flow completed") }
-            .catch { ex -> println("Exception message: ${ex.message}") }
-            .toList()
+        .onStart { println("Starting flow") }
+        .onCompletion { println("Flow completed") }
+        .catch { ex -> println("Exception message: ${ex.message}") }
+        .toList()
 }

@@ -10,12 +10,12 @@ import kotlin.system.measureTimeMillis
 fun main() = runBlocking<Unit> {
     measureTimeMillis {
         (1..5).asFlow()
-                .onEach { event -> delay(100) }
-                .collect() // We wait 500ms
+            .onEach { event -> delay(100) }
+            .collect() // We wait 500ms
 
         (1..5).asFlow()
-                .onEach { event -> delay(100) }
-                .collect() // We wait 500ms
+            .onEach { event -> delay(100) }
+            .collect() // We wait 500ms
 
     }.let(::print) // 1049
 }

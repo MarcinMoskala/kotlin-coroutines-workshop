@@ -8,7 +8,7 @@ import kotlinx.coroutines.runBlocking
 
 fun main() = runBlocking<Unit> {
     flowOf(1, 2, 3)
-            .onEach { print(it) } // 123
-            .map { it * 10 }
-            .collect {}
+        .onEach { print(it) } // 123
+        .map { it * 10 }
+        .collect {}
 }

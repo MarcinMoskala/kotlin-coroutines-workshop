@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.onEach
 
 suspend fun main() = coroutineScope<Unit> {
     flowOf("A", "B", "C")
-            .onEach { println("onEach $it") }
-            .collect { println("collect $it") }
+        .onEach { println("onEach $it") }
+        .collect { println("collect $it") }
 }
 
 //suspend fun main() = coroutineScope<Unit> {

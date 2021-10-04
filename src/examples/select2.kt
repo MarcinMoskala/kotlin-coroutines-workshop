@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
 
 suspend private fun CoroutineScope.produceString(s: String, time: Long) = produce {
-    repeat (20) {
+    repeat(20) {
         delay(time)
         send(s)
     }

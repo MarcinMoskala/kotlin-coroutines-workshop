@@ -17,7 +17,7 @@ class FactoryTests {
 
         override fun makeMachine(): Machine {
             return PerfectMachine()
-                    .also { createdMachines = createdMachines + it }
+                .also { createdMachines = createdMachines + it }
         }
 
         override fun storeCode(code: String) {
@@ -67,8 +67,16 @@ Codes                    1              2     3          4    5    6
 
         suspend fun checkAfter(timeMillis: Long, codes: Int) {
             delay(timeMillis - currentTime)
-            assertEquals(codes, control.countCreatedCodes(), "After $timeMillis (is $currentTime) there should be $codes produced but is ${control.countCreatedCodes()}")
-            assertEquals(codes, control.codesStored.size, "After $timeMillis (is $currentTime) there should be $codes stored but is ${control.countCreatedCodes()}")
+            assertEquals(
+                codes,
+                control.countCreatedCodes(),
+                "After $timeMillis (is $currentTime) there should be $codes produced but is ${control.countCreatedCodes()}"
+            )
+            assertEquals(
+                codes,
+                control.codesStored.size,
+                "After $timeMillis (is $currentTime) there should be $codes stored but is ${control.countCreatedCodes()}"
+            )
         }
 
         launch {

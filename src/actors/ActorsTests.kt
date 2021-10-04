@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 class ActorsTests {
 
     class FakeFactoryControl(
-            val machineProducer: () -> Machine
+        val machineProducer: () -> Machine
     ) : FactoryControl {
         var createdMachines = listOf<Machine>()
         var codesStored = listOf<String>()
@@ -22,7 +22,7 @@ class ActorsTests {
         override fun makeMachine(): Machine {
             require(!finished)
             return machineProducer()
-                    .also { createdMachines = createdMachines + it }
+                .also { createdMachines = createdMachines + it }
         }
 
         override fun storeCode(code: String) {
@@ -131,7 +131,11 @@ class ActorsTests {
         delay(2_000)
 
         val producedPost = control.createdMachines.size
-        assertEquals(producedPre, producedPost, "It should not produce any new machines when there are already 5 perfect")
+        assertEquals(
+            producedPre,
+            producedPost,
+            "It should not produce any new machines when there are already 5 perfect"
+        )
     }
 
 

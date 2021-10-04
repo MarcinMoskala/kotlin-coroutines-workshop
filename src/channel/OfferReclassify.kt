@@ -51,7 +51,7 @@ class TestSendEventApi(sometimesFailing: Boolean = false, private val callDelay:
     override suspend fun reclassifyOffer(id: OfferId) = mutex.withLock {
         delay(callDelay)
         if (id in failingIds) {
-            if(Random.nextBoolean()) failingIds = failingIds - id
+            if (Random.nextBoolean()) failingIds = failingIds - id
             throw ServiceUnavailableException()
         }
         reclassified = reclassified + id

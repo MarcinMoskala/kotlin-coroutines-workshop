@@ -31,6 +31,7 @@ suspend fun CoroutineScope.getContributionsChannel(service: GitHubService): Rece
     // TODO
 }
 
-suspend fun CoroutineScope.getAggregatedContributionsChannel(service: GitHubService): ReceiveChannel<List<User>> = produce {
-    // TODO
-}
+suspend fun CoroutineScope.getAggregatedContributionsChannel(service: GitHubService): ReceiveChannel<List<User>> =
+    produce {
+        // TODO
+    }

@@ -29,22 +29,23 @@ suspend fun main() = coroutineScope<Unit> {
     println("Done, took ${endTime - startTime}")
 }
 
-suspend fun serveOrders(orders: List<Order>, serveCoffee: (coffee: Coffee, customer: String, barista: String) -> Unit) = coroutineScope {
-    for (order in orders) {
-        launch {
-            val groundCoffee = groundCoffee()
-            val espresso = makeEspresso(groundCoffee)
-            val coffee = when (order.type) {
-                CoffeeType.ESPRESSO -> espresso
-                CoffeeType.LATE -> {
-                    val milk = brewMilk()
-                    Latte(milk, espresso)
+suspend fun serveOrders(orders: List<Order>, serveCoffee: (coffee: Coffee, customer: String, barista: String) -> Unit) =
+    coroutineScope {
+        for (order in orders) {
+            launch {
+                val groundCoffee = groundCoffee()
+                val espresso = makeEspresso(groundCoffee)
+                val coffee = when (order.type) {
+                    CoffeeType.ESPRESSO -> espresso
+                    CoffeeType.LATE -> {
+                        val milk = brewMilk()
+                        Latte(milk, espresso)
+                    }
                 }
+                serveCoffee(coffee, order.customer, "Bob")
             }
-            serveCoffee(coffee, order.customer, "Bob")
         }
     }
-}
 
 fun groundCoffee(): GroundCoffee {
     longOperation()

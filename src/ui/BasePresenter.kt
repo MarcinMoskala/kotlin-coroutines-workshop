@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 abstract class BasePresenter(
-        private val onError: (Throwable) -> Unit = {}
+    private val onError: (Throwable) -> Unit = {}
 ) {
     val scope: CoroutineScope = TODO()
 
@@ -26,8 +26,8 @@ class BasePresenterTests {
     }
 
     class FakePresenter(
-            private val jobInterceptor: (() -> Unit)? = null,
-            onError: (Throwable) -> Unit = {}
+        private val jobInterceptor: (() -> Unit)? = null,
+        onError: (Throwable) -> Unit = {}
     ) : BasePresenter(onError) {
 
         var cancelledJobs = 0
@@ -68,9 +68,9 @@ class BasePresenterTests {
     fun `Coroutines run on main thread`() = runBlocking {
         var threads = listOf<Thread>()
         val presenter = FakePresenter(
-                jobInterceptor = {
-                    threads += Thread.currentThread()
-                }
+            jobInterceptor = {
+                threads += Thread.currentThread()
+            }
         )
         presenter.onCreate()
         delay(100)
@@ -87,8 +87,8 @@ class BasePresenterTests {
         val error = Error()
         var errors = listOf<Throwable>()
         val presenter = FakePresenter(
-                jobInterceptor = { throw error },
-                onError = { errors += it }
+            jobInterceptor = { throw error },
+            onError = { errors += it }
         )
         presenter.onCreate()
         delay(200)
@@ -115,7 +115,7 @@ class BasePresenterTests {
     fun `Error on a single coroutine, does not cancel others`() = runBlocking {
         var called = false
         val presenter = FakePresenterForSingleExceptionHandling(
-                onSecondAction = { called = true }
+            onSecondAction = { called = true }
         )
         presenter.onCreate()
         delay(300)

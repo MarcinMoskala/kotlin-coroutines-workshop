@@ -12,7 +12,8 @@ suspend fun main() {
         println("Doing $taskName on ${Thread.currentThread().name}")
     }
     withContext(UI) {
-        val singleValue = flow { logThread("flow"); emit("A") } // will be executed on IO if context wasn't specified before
+        val singleValue =
+            flow { logThread("flow"); emit("A") } // will be executed on IO if context wasn't specified before
                 .map { logThread("map"); it } // Will be executed in IO
                 .flowOn(IO)
                 .filter { logThread("filter"); it != null } // Will be executed in Default

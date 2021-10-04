@@ -92,8 +92,14 @@ class FlowTests {
         assertEquals(listOf(listOf(), listOf(Unit)), producingUnits(1).withHistory().toList())
         assertEquals(listOf(listOf(), listOf(Unit), listOf(Unit, Unit)), producingUnits(2).withHistory().toList())
 
-        assertEquals(listOf(listOf(), listOf(1), listOf(1, 2)), producingUnits(2).toNextNumbers().withHistory().toList())
-        assertEquals(listOf(listOf(), listOf(true), listOf(true, false)), producingUnits(2).toToggle().withHistory().toList())
+        assertEquals(
+            listOf(listOf(), listOf(1), listOf(1, 2)),
+            producingUnits(2).toNextNumbers().withHistory().toList()
+        )
+        assertEquals(
+            listOf(listOf(), listOf(true), listOf(true, false)),
+            producingUnits(2).toToggle().withHistory().toList()
+        )
 
         val flow = flow {
             emit("A")

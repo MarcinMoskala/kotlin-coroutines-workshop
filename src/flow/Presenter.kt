@@ -16,11 +16,11 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.test.assertEquals
 
 class NewsListPresenter(
-        private val view: NewsListView,
-        private val newsRepository: NewsRepository,
-        private val refreshClicks: Flow<Unit>,
-        private val pullRefreshActions: Flow<Unit>,
-        private val dispatcher: CoroutineContext
+    private val view: NewsListView,
+    private val newsRepository: NewsRepository,
+    private val refreshClicks: Flow<Unit>,
+    private val pullRefreshActions: Flow<Unit>,
+    private val dispatcher: CoroutineContext
 ) {
 
     var a = 20
@@ -29,15 +29,15 @@ class NewsListPresenter(
         // TODO
         CoroutineScope(dispatcher).launch {
             flowOf(refreshClicks, pullRefreshActions)
-                    .flattenMerge()
+                .flattenMerge()
 //                    .flowOn(Dispatchers.IO)
 //                    .flowOn(Dispatchers.Main)
-                    .onEach { view.showRefresh() }
-                    .catch { print(it) }
+                .onEach { view.showRefresh() }
+                .catch { print(it) }
 //                    .flowOn(Dispatchers.IO)
-                    .collect {
+                .collect {
 
-                    }
+                }
 
             delay(50)
             a = 30

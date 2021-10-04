@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 class StructuredTests {
 
     class FakeFactoryControl(
-            val machineProducer: () -> Machine
+        val machineProducer: () -> Machine
     ) : FactoryControl {
         var createdMachines = listOf<Machine>()
         var codesStored = listOf<String>()
@@ -20,7 +20,7 @@ class StructuredTests {
         override fun makeMachine(): Machine {
             require(!finished)
             return machineProducer()
-                    .also { createdMachines = createdMachines + it }
+                .also { createdMachines = createdMachines + it }
         }
 
         override fun storeCode(code: String) {
@@ -127,19 +127,24 @@ class StructuredTests {
         delay(2_000)
 
         val producedPost = control.createdMachines.size
-        assertEquals(producedPre, producedPost, "It should not produce any new machines when there are already 5 perfect")
+        assertEquals(
+            producedPre,
+            producedPost,
+            "It should not produce any new machines when there are already 5 perfect"
+        )
     }
 
     @Test
-    fun `The first code should be created after time to create machine and time to produce code (+10ms margin)`() = runBlockingTest {
-        val perfectMachine = PerfectMachine()
-        val control = FakeFactoryControl(machineProducer = { perfectMachine })
+    fun `The first code should be created after time to create machine and time to produce code (+10ms margin)`() =
+        runBlockingTest {
+            val perfectMachine = PerfectMachine()
+            val control = FakeFactoryControl(machineProducer = { perfectMachine })
 
-        setupFactory(control)
-        delay(800 + 1000 + 10)
+            setupFactory(control)
+            delay(800 + 1000 + 10)
 
-        assertEquals(1, perfectMachine.timesUsed)
-    }
+            assertEquals(1, perfectMachine.timesUsed)
+        }
 
     /*
          800     1600    1800    2400   2600  2800  3200 3400 3600 3800

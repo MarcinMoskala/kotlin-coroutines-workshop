@@ -21,7 +21,10 @@ class ShowUserDataTest {
         showUserData(repo, view)
 
         // then
-        assertEquals(listOf(User("Ben", listOf(Friend("some-friend-id-1")), Profile("Example description"))), view.printed)
+        assertEquals(
+            listOf(User("Ben", listOf(Friend("some-friend-id-1")), Profile("Example description"))),
+            view.printed
+        )
     }
 
     @Test

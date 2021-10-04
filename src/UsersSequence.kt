@@ -31,6 +31,7 @@ internal class UsersSequenceTests {
         val users = List(size) { User("User$it") }
         var timesUsed = 0
 
-        override fun takePage(pageNumber: Int): List<User> = users.dropLast(pageSize * pageNumber).take(pageSize).also { timesUsed++ }
+        override fun takePage(pageNumber: Int): List<User> =
+            users.dropLast(pageSize * pageNumber).take(pageSize).also { timesUsed++ }
     }
 }

@@ -16,7 +16,7 @@ class MainPresenter(
         }
         scope.launch {
             val news = newsRepo.getNews()
-                    .sortedByDescending { it.date }
+                .sortedByDescending { it.date }
             view.showNews(news)
         }
     }

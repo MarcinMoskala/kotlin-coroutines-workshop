@@ -9,9 +9,9 @@ import kotlinx.coroutines.runBlocking
 fun main() = runBlocking {
     try {
         flowOf(1, 2, 3)
-                .map { it / 0 }
-                .catch { emit(-1) }
-                .collect { it / 0 }
+            .map { it / 0 }
+            .catch { emit(-1) }
+            .collect { it / 0 }
     } catch (e: ArithmeticException) {
         print("Got it")
     }
