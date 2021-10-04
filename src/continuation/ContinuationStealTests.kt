@@ -23,7 +23,7 @@ class ContinuationStealTests {
     }
 
     @Test
-    fun `At the beginning function says "Before"`() = runBlockingTest {
+    fun `At the beginning function says Before`() = runBlockingTest {
         val fakeConsole = FakeConsole()
         val job = launch {
             continuationSteal(fakeConsole)
@@ -34,7 +34,7 @@ class ContinuationStealTests {
     }
 
     @Test
-    fun `At the end function says "After"`() = runBlockingTest {
+    fun `At the end function says After`() = runBlockingTest {
         val fakeConsole = FakeConsole()
         val job = launch {
             continuationSteal(fakeConsole)
@@ -64,7 +64,7 @@ class ContinuationStealTests {
     }
 
     @Test
-    fun `Only "Before" is printed before resume`() = runBlockingTest {
+    fun `Only Before is printed before resume`() = runBlockingTest {
         val fakeConsole = FakeConsole()
         val job = launch {
             continuationSteal(fakeConsole)
