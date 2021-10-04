@@ -2,20 +2,23 @@ package examples
 
 import kotlinx.coroutines.*
 
-suspend fun test(): Int = withTimeout(1500) {
-    delay(1000)
-    println("Still thinking")
-    delay(1000)
-    println("Done!")
-    42
+fun CoroutineScope.log(msg: String) {
+    val name = coroutineContext[CoroutineName]?.name
+    println("[$name] $msg")
 }
 
-suspend fun main(): Unit = coroutineScope {
-    try {
-        test()
-    } catch (e: TimeoutCancellationException) {
-        println("Cancelled")
+fun main() = runBlocking(CoroutineName("Parent")) {
+    log("Before")
+
+    withContext(CoroutineName("Child 1")) {
+        delay(1000)
+        log("Hello 1")
     }
-//    delay(1000)
-}
 
+    withContext(CoroutineName("Child 2")) {
+        delay(1000)
+        log("Hello 2")
+    }
+
+    log("After")
+}
