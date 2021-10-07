@@ -10,6 +10,15 @@ val dispatcher = Executors.newSingleThreadExecutor()
 //val dispatcher = Executors.newFixedThreadPool(100)
 //    .asCoroutineDispatcher()
 
+suspend fun longOperation() {
+    val size = 350 // ~0.1 second on my MacBook
+    val list = List(size) { it }
+    val listOfLists = List(size) { list }
+    val listOfListsOfLists = List(size) { listOfLists }
+    listOfListsOfLists.hashCode()
+//    Thread.sleep(1000)
+//    delay(1000)
+}
 
 suspend fun serveOrders(orders: List<Order>) =
     coroutineScope {
@@ -20,16 +29,6 @@ suspend fun serveOrders(orders: List<Order>) =
             }
         }
     }
-
-suspend fun longOperation() {
-    val size = 350 // ~0.1 second on my MacBook
-    val list = List(size) { it }
-    val listOfLists = List(size) { list }
-    val listOfListsOfLists = List(size) { listOfLists }
-    listOfListsOfLists.hashCode()
-//    Thread.sleep(1000)
-//    delay(1000)
-}
 
 suspend fun main() = withContext(dispatcher) {
     val orders = List(100) { Order("Customer$it", CoffeeType.values().random()) }
