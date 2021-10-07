@@ -1,28 +1,5 @@
-import kotlinx.coroutines.*
-import kotlin.coroutines.*
+import kotlinx.coroutines.coroutineScope
 
-//sampleStart
-suspend fun main(): Unit =
-    withContext(newSingleThreadContext("Name1")) {
-        var continuation: Continuation<Unit>? = null
+suspend fun main(): Unit = coroutineScope {
 
-        launch(newSingleThreadContext("Name2")) {
-            delay(1000)
-            continuation?.resume(Unit)
-        }
-
-        launch(Dispatchers.Unconfined) {
-            println(Thread.currentThread().name) // Name1
-
-            suspendCoroutine<Unit> { continuation = it }
-
-            println(Thread.currentThread().name) // Name2
-
-            delay(1000)
-
-            println(Thread.currentThread().name)
-            // kotlinx.coroutines.DefaultExecutor
-            // (used by delay)
-        }
-    }
-//sampleEnd
+}
