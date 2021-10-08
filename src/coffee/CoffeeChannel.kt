@@ -22,7 +22,10 @@ suspend fun main() = coroutineScope {
     val orders = List(100) { Order("Customer$it", CoffeeType.values().random()) }
     val startTime = System.currentTimeMillis()
 
+    serveOrders(orders, "Alice")
     serveOrders(orders, "Bob")
+    serveOrders(orders, "Celine")
+    serveOrders(orders, "Dave")
 
 //    for((coffee, customer, barista) in servedOrders) {
 //        println("Coffee $coffee for $customer made by $barista")
@@ -36,7 +39,7 @@ data class CoffeeResult(val coffee: coffee.Coffee, val customer: String, val bar
 
 suspend fun serveOrders(orders: List<Order>, baristaName: String): ReceiveChannel<CoffeeResult> = TODO()
     // val coffee = makeCoffee()
-    // send(coffee, order.customer, baristaName)
+    // send(CoffeeResult(coffee, order.customer, baristaName))
 
 private suspend fun makeCoffee(order: Order): Coffee {
     val groundCoffee = groundCoffee()
