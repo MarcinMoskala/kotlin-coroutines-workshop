@@ -10,14 +10,42 @@ val dispatcher = Executors.newSingleThreadExecutor()
 //val dispatcher = Executors.newFixedThreadPool(100)
 //    .asCoroutineDispatcher()
 
-suspend fun longOperation() {
-    val size = 350 // ~0.1 second on my MacBook
-    val list = List(size) { it }
-    val listOfLists = List(size) { list }
-    val listOfListsOfLists = List(size) { listOfLists }
-    listOfListsOfLists.hashCode()
-//    Thread.sleep(1000)
-//    delay(1000)
+//val longOperation = ::cpu1
+//val longOperation = ::cpu2
+val longOperation = ::memory
+//val longOperation = ::blocking
+//val longOperation = ::suspending
+
+fun cpu1() {
+    var i = Int.MAX_VALUE / 10
+    while (i > 0) {
+        i -= if (i % 2 == 0) 1 else 2
+    }
+}
+
+fun cpu2() {
+    var isPrime = true
+    for (numberToCheck in 1..13774) {
+        isPrime = true
+        for (i in 1..numberToCheck) {
+            if (numberToCheck % i == 0) isPrime = false
+        }
+    }
+}
+
+fun memory() {
+    val list = List(1_000) { it }
+    val list2 = List(1_000) { list }
+    val list3 = List(30) { list2 }
+    list3.hashCode()
+}
+
+fun blocking() {
+    Thread.sleep(1000)
+}
+
+suspend fun suspending() {
+    delay(1000)
 }
 
 suspend fun serveOrders(orders: List<Order>) =
