@@ -2,7 +2,6 @@ package github
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -11,9 +10,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
-import java.util.Base64
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
+import java.util.*
 
 interface GitHubService {
     suspend fun getOrgRepos(): List<Repo>
@@ -68,14 +65,14 @@ data class User(
     val contributions: Int
 )
 
-inline fun <T> Call<T>.onResponse(crossinline callback: (Response<T>) -> Unit) {
+inline fun <T> Call<T>.onResponse(crossinline onSuccess: (Response<T>) -> Unit, crossinline onError: (Throwable) -> Unit) {
     enqueue(object : Callback<T> {
         override fun onResponse(call: Call<T>, response: Response<T>) {
-            callback(response)
+            onSuccess(response)
         }
 
         override fun onFailure(call: Call<T>, t: Throwable) {
-            throw t
+            onError(t)
         }
     })
 }
