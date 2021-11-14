@@ -40,7 +40,7 @@ class ShowUserDataTest {
         assertEquals(1, view.printed.size)
     }
 
-    @Test(timeout = 400)
+    @Test(timeout = 500)
     fun `should start notify profile shown`() = runBlocking {
         // given
         val repo = FakeUserDataRepository()
