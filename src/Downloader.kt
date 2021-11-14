@@ -26,9 +26,11 @@ class UserDownloader(private val api: NetworkService) {
 
 suspend fun main() = coroutineScope {
     val downloader = UserDownloader(FakeNetworkService())
-    repeat(1_000_000) {
-        launch {
-            downloader.getUser(it)
+    coroutineScope {
+        repeat(1_000_000) {
+            launch {
+                downloader.getUser(it)
+            }
         }
     }
     print(downloader.downloaded().size) // ~714725
