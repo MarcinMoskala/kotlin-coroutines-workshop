@@ -1,8 +1,8 @@
 package coffee.channel
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.ReceiveChannel
-import java.util.concurrent.Executors
+import kotlinx.coroutines.coroutineScope
 
 data class Order(val customer: String, val type: CoffeeType)
 enum class CoffeeType { ESPRESSO, LATE }
@@ -19,7 +19,8 @@ class Latte(milk: Milk, espresso: Espresso) : Coffee() {
 }
 
 suspend fun main() = coroutineScope {
-    val orders = List(100) { Order("Customer$it", CoffeeType.values().random()) }
+    val ordersList = List(100) { Order("Customer$it", CoffeeType.values().random()) }
+    val orders = TODO()
     val startTime = System.currentTimeMillis()
 
     serveOrders(orders, "Alice")
@@ -27,7 +28,7 @@ suspend fun main() = coroutineScope {
     serveOrders(orders, "Celine")
     serveOrders(orders, "Dave")
 
-//    for((coffee, customer, barista) in servedOrders) {
+//    for ((coffee, customer, barista) in servedOrders) {
 //        println("Coffee $coffee for $customer made by $barista")
 //    }
 
@@ -35,11 +36,11 @@ suspend fun main() = coroutineScope {
     println("Done, took ${endTime - startTime}")
 }
 
-data class CoffeeResult(val coffee: coffee.Coffee, val customer: String, val barista: String)
+data class CoffeeResult(val coffee: Coffee, val customer: String, val barista: String)
 
-suspend fun serveOrders(orders: List<Order>, baristaName: String): ReceiveChannel<CoffeeResult> = TODO()
-    // val coffee = makeCoffee()
-    // send(CoffeeResult(coffee, order.customer, baristaName))
+fun CoroutineScope.serveOrders(orders: ReceiveChannel<Order>, baristaName: String): ReceiveChannel<CoffeeResult> = TODO()
+//    val coffee = makeCoffee(order)
+//    send(CoffeeResult(coffee, order.customer, baristaName))
 
 private suspend fun makeCoffee(order: Order): Coffee {
     val groundCoffee = groundCoffee()
