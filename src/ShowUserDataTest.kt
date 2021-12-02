@@ -11,7 +11,7 @@ import kotlin.test.assertTrue
 @Suppress("FunctionName")
 class ShowUserDataTest {
 
-    @Test(timeout = 3000)
+    @Test
     fun `should show data on view`() = runBlocking {
         // given
         val repo = FakeUserDataRepository()
@@ -27,7 +27,7 @@ class ShowUserDataTest {
         )
     }
 
-    @Test
+    @Test(timeout = 800)
     fun `should load user data asynchronously and not wait for notify`() = runBlocking {
         // given
         val repo = FakeUserDataRepository()
@@ -40,7 +40,7 @@ class ShowUserDataTest {
         assertEquals(1, view.printed.size)
     }
 
-    @Test(timeout = 500)
+    @Test
     fun `should start notify profile shown`() = runBlocking {
         // given
         val repo = FakeUserDataRepository()
@@ -48,6 +48,7 @@ class ShowUserDataTest {
 
         // when
         showUserData(repo, view)
+        delay(100)
 
         // then
         assertTrue(repo.notifyCalled)
@@ -62,17 +63,17 @@ class ShowUserDataTest {
         }
 
         override suspend fun getName(): String {
-            delay(200)
+            delay(300)
             return "Ben"
         }
 
         override suspend fun getFriends(): List<Friend> {
-            delay(200)
+            delay(300)
             return listOf(Friend("some-friend-id-1"))
         }
 
         override suspend fun getProfile(): Profile {
-            delay(200)
+            delay(300)
             return Profile("Example description")
         }
     }
