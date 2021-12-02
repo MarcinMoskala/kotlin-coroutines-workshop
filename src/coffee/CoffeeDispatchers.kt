@@ -10,9 +10,8 @@ val dispatcher = Executors.newSingleThreadExecutor()
 //val dispatcher = Executors.newFixedThreadPool(100)
 //    .asCoroutineDispatcher()
 
-//val longOperation = ::cpu1
-//val longOperation = ::cpu2
-val longOperation = ::memory
+val longOperation = ::cpu1
+//val longOperation = ::memory
 //val longOperation = ::blocking
 //val longOperation = ::suspending
 
