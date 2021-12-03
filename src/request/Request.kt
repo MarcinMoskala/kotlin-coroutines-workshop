@@ -1,8 +1,6 @@
 package request
 
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.junit.Test
@@ -43,7 +41,7 @@ class RequestTest {
         val semester = "19L"
         val best = Student(2, 95.0, semester)
         val repo = ImmediateFakeStudentRepo(listOf())
-        assertThrowsError<NoSuchElementException> {
+        assertThrowsError<IllegalStateException> {
             val chosen = getBestStudent(semester, repo)
         }
     }
