@@ -10,7 +10,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.currentTime
+import kotlinx.coroutines.test.runTest
 import javax.naming.ServiceUnavailableException
 import kotlin.random.Random
 import kotlin.test.Test
@@ -61,7 +62,7 @@ class TestSendEventApi(sometimesFailing: Boolean = false, private val callDelay:
 class OfferReclassifyTest {
 
     @Test
-    fun `Should reclassify all elements`() = runBlockingTest {
+    fun `Should reclassify all elements`() = runTest {
         val offerStoreApi = TestOfferStoreApi()
         val sendEventApi = TestSendEventApi()
         reclassifyAllOffers(offerStoreApi, sendEventApi)
@@ -69,7 +70,7 @@ class OfferReclassifyTest {
     }
 
     @Test
-    fun `Should get and reclassify asynchroniously`() = runBlockingTest {
+    fun `Should get and reclassify asynchroniously`() = runTest {
         val callDelay = 10L
         val offerStoreApi = TestOfferStoreApi(callDelay = callDelay)
         val sendEventApi = TestSendEventApi(callDelay = callDelay)
@@ -81,7 +82,7 @@ class OfferReclassifyTest {
 
     // Extra
 //    @Test
-//    fun `Should try to classify again if failed`() = runBlockingTest {
+//    fun `Should try to classify again if failed`() = runTest {
 //        val offerStoreApi = TestOfferStoreApi()
 //        val sendEventApi = TestSendEventApi(sometimesFailing = true)
 //        reclassifyAllOffers(offerStoreApi, sendEventApi)

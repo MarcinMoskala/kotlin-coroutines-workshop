@@ -2,7 +2,8 @@ package structured
 
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.currentTime
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -79,7 +80,7 @@ class StructuredTests {
     }
 
     @Test
-    fun `Function creates a new machine every 800ms up to 5 and no more if they are all perfect`() = runBlockingTest {
+    fun `Function creates a new machine every 800ms up to 5 and no more if they are all perfect`() = runTest {
         val control = FakeFactoryControl(machineProducer = ::PerfectMachine)
         setupFactory(control)
         for (i in 0..5) {
@@ -93,7 +94,7 @@ class StructuredTests {
     }
 
     @Test
-    fun `Function creates a new machine every 800ms every time if all machines are failing`() = runBlockingTest {
+    fun `Function creates a new machine every 800ms every time if all machines are failing`() = runTest {
         val control = FakeFactoryControl(machineProducer = ::FailingMachine)
         setupFactory(control)
         for (i in 0..100) {
@@ -103,7 +104,7 @@ class StructuredTests {
     }
 
     @Test
-    fun `Function creates a new machine after 800ms if less then 5`() = runBlockingTest {
+    fun `Function creates a new machine after 800ms if less then 5`() = runTest {
         var correctMachines = 0
         var nextIsCorrect = false
         val control = FakeFactoryControl(machineProducer = {
@@ -136,7 +137,7 @@ class StructuredTests {
 
     @Test
     fun `The first code should be created after time to create machine and time to produce code (+10ms margin)`() =
-        runBlockingTest {
+        runTest {
             val perfectMachine = PerfectMachine()
             val control = FakeFactoryControl(machineProducer = { perfectMachine })
 
@@ -155,7 +156,7 @@ class StructuredTests {
     Codes                    1              2     3          4    5    6
      */
     @Test
-    fun `Every machine produces code every second`() = runBlockingTest {
+    fun `Every machine produces code every second`() = runTest {
         val perfectMachine = PerfectMachine()
         val control = FakeFactoryControl(machineProducer = { perfectMachine })
         suspend fun checkAt(timeMillis: Long, codes: Int) {
@@ -177,7 +178,7 @@ class StructuredTests {
     }
 
     @Test
-    fun `Created codes are stored no later then 100ms after created`() = runBlockingTest {
+    fun `Created codes are stored no later then 100ms after created`() = runTest {
         val perfectMachine = PerfectMachine()
         val control = FakeFactoryControl(machineProducer = { perfectMachine })
         suspend fun checkAt(timeMillis: Long, codes: Int) {
@@ -199,7 +200,7 @@ class StructuredTests {
     }
 
     @Test
-    fun `When there are 20 codes stored, process ends`() = runBlockingTest {
+    fun `When there are 20 codes stored, process ends`() = runTest {
         val perfectMachine = PerfectMachine()
         val control = FakeFactoryControl(machineProducer = { perfectMachine })
         setupFactory(control)

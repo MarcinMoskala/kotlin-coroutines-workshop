@@ -3,7 +3,8 @@ package examples.t2
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.currentTime
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -28,7 +29,7 @@ class ShowUserUseCase(
 class ShowUserDataTest {
 
     @Test
-    fun `should load data concurrently`() = runBlockingTest {
+    fun `should load data concurrently`() = runTest {
         // given
         val repo = FakeUserDataRepository()
         val view = FakeUserDataView()
@@ -42,7 +43,7 @@ class ShowUserDataTest {
     }
 
     @Test
-    fun `should show data on view`() = runBlockingTest {
+    fun `should show data on view`() = runTest {
         // given
         val repo = FakeUserDataRepository()
         val view = FakeUserDataView()

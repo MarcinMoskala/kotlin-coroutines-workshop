@@ -1,10 +1,12 @@
 package actors
 
 import assertThrows
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.currentTime
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -13,7 +15,7 @@ import kotlin.test.assertEquals
 class ActorsTests {
 
     class FakeFactoryControl(
-        val machineProducer: () -> Machine
+            val machineProducer: () -> Machine
     ) : FactoryControl {
         var createdMachines = listOf<Machine>()
         var codesStored = listOf<String>()
@@ -22,7 +24,7 @@ class ActorsTests {
         override fun makeMachine(): Machine {
             require(!finished)
             return machineProducer()
-                .also { createdMachines = createdMachines + it }
+                    .also { createdMachines = createdMachines + it }
         }
 
         override fun storeCode(code: String) {
@@ -81,7 +83,7 @@ class ActorsTests {
     }
 
     @Test
-    fun `Function creates a new machine every 800ms up to 5 and no more if they are all perfect`() = runBlockingTest {
+    fun `Function creates a new machine every 800ms up to 5 and no more if they are all perfect`() = runTest {
         val control = FakeFactoryControl(machineProducer = ::PerfectMachine)
 
         setupFactory(control)
@@ -94,7 +96,7 @@ class ActorsTests {
 
 
     @Test
-    fun `Function creates a new machine every 800ms every time if all machines are failing`() = runBlockingTest {
+    fun `Function creates a new machine every 800ms every time if all machines are failing`() = runTest {
         val control = FakeFactoryControl(machineProducer = ::FailingMachine)
 
         val job = launch { setupFactory(control) }
@@ -106,7 +108,7 @@ class ActorsTests {
     }
 
     @Test
-    fun `Function creates a new machine after 800ms if less then 5`() = runBlockingTest {
+    fun `Function creates a new machine after 800ms if less then 5`() = runTest {
         var correctMachines = 0
         var nextIsCorrect = false
         val control = FakeFactoryControl(machineProducer = {
@@ -132,15 +134,15 @@ class ActorsTests {
 
         val producedPost = control.createdMachines.size
         assertEquals(
-            producedPre,
-            producedPost,
-            "It should not produce any new machines when there are already 5 perfect"
+                producedPre,
+                producedPost,
+                "It should not produce any new machines when there are already 5 perfect"
         )
     }
 
 
     @Test
-    fun `The first code should be created after time to create machine and time to produce code`() = runBlockingTest {
+    fun `The first code should be created after time to create machine and time to produce code`() = runTest {
         val perfectMachine = PerfectMachine()
         val control = FakeFactoryControl(machineProducer = { perfectMachine })
 
@@ -160,7 +162,7 @@ class ActorsTests {
    Codes                    1              2     3          4    5    6
      */
     @Test
-    fun `Every machine produces code every second`() = runBlockingTest {
+    fun `Every machine produces code every second`() = runTest {
         val perfectMachine = PerfectMachine()
         val control = FakeFactoryControl(machineProducer = { perfectMachine })
 
@@ -184,7 +186,7 @@ class ActorsTests {
     }
 
     @Test
-    fun `Created codes are stored no later then 100ms after created`() = runBlockingTest {
+    fun `Created codes are stored no later then 100ms after created`() = runTest {
         val perfectMachine = PerfectMachine()
         val control = FakeFactoryControl(machineProducer = { perfectMachine })
 
@@ -207,7 +209,7 @@ class ActorsTests {
     }
 
     @Test
-    fun `When there are 20 codes stored, process ends`() = runBlockingTest {
+    fun `When there are 20 codes stored, process ends`() = runTest {
         val perfectMachine = PerfectMachine()
         val control = FakeFactoryControl(machineProducer = { perfectMachine })
 

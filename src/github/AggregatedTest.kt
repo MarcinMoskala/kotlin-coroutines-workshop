@@ -1,7 +1,7 @@
 package github
 
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -13,12 +13,12 @@ internal class AggregatedTest {
     private val repo2 = Repo(11, "R2")
 
     @Test
-    fun `Function works without errors`() = runBlockingTest {
+    fun `Function works without errors`() = runTest {
         getAggregatedContributions(EmptyService)
     }
 
     @Test
-    fun `When no repositories or no users, returns empty lists`() = runBlockingTest {
+    fun `When no repositories or no users, returns empty lists`() = runTest {
         val list1 = getAggregatedContributions(EmptyService)
         assertEquals(emptyList(), list1)
         val list2 = getAggregatedContributions(FakeStaticSyncService(listOf(), listOf(user1)))
@@ -30,19 +30,19 @@ internal class AggregatedTest {
     }
 
     @Test
-    fun `Lists all unique users`() = runBlockingTest {
+    fun `Lists all unique users`() = runTest {
         val list = getAggregatedContributions(FakeStaticSyncService(listOf(repo1), listOf(user1, user2)))
         assertEquals(listOf(user1, user2), list)
     }
 
     @Test
-    fun `Accumulates contributions of a single user`() = runBlockingTest {
+    fun `Accumulates contributions of a single user`() = runTest {
         val list = getAggregatedContributions(FakeStaticSyncService(listOf(repo1), listOf(user1, user1)))
         assertEquals(listOf(User(user1.login, user1.contributions * 2)), list)
     }
 
     @Test
-    fun `Accumulates contributions of multiple users user`() = runBlockingTest {
+    fun `Accumulates contributions of multiple users user`() = runTest {
         val list = getAggregatedContributions(FakeStaticSyncService(listOf(repo1, repo2), listOf(user1, user1, user2)))
         val expected = listOf(
             User(user1.login, user1.contributions * 4),
@@ -52,7 +52,7 @@ internal class AggregatedTest {
     }
 
     @Test
-    fun `Prepared for multithreading`() = runBlockingTest {
+    fun `Prepared for multithreading`() = runTest {
         val service = FakeDelayedAsyncService(List(100) { repo1 }, List(100) { user1 })
         var res = getAggregatedContributions(service)
         delay(500)

@@ -3,7 +3,7 @@ package github
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.toList
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -19,13 +19,13 @@ internal class ChannelsTest {
     private val service = FakeStaticSyncService(listOf(repo1, repo2), listOf(user1, user2))
 
     @Test
-    fun getContributionsTest() = runBlockingTest {
+    fun getContributionsTest() = runTest {
         val channel = getContributionsChannel(service)
         assertEquals(listOf(listOf(user1, user2), listOf(user1, user2)), channel.toList())
     }
 
     @Test
-    fun getAggregatedContributionsChannelTest() = runBlockingTest {
+    fun getAggregatedContributionsChannelTest() = runTest {
         val channel = getAggregatedContributionsChannel(service)
         assertEquals(listOf(listOf(user1, user2), listOf(user1Doubled, user2Doubled)), channel.toList())
     }

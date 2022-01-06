@@ -4,7 +4,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.currentTime
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.junit.Test
 import kotlin.coroutines.CoroutineContext
@@ -34,7 +35,7 @@ class ShowUserUseCase(
 class ShowUserDataTest {
 
     @Test
-    fun `should load data concurrently`() = runBlockingTest {
+    fun `should load data concurrently`() = runTest {
         // given
         val repo = FakeUserDataRepository()
         val view = FakeUserDataView()
@@ -52,7 +53,7 @@ class ShowUserDataTest {
     }
 
     @Test
-    fun `should show user data on view`() = runBlockingTest {
+    fun `should show user data on view`() = runTest {
         // given
         val repo = FakeUserDataRepository()
         val view = FakeUserDataView()

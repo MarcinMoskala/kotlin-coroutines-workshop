@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertEquals
@@ -55,7 +55,7 @@ data class Person(val name: String)
 class FlowTests {
 
     @Test()
-    fun producingUnitsTests() = runBlockingTest {
+    fun producingUnitsTests() = runTest {
         assertEquals(listOf(), producingUnits(0).toList())
         assertEquals(listOf(Unit), producingUnits(1).toList())
         assertEquals(listOf(Unit, Unit), producingUnits(2).toList())
@@ -66,7 +66,7 @@ class FlowTests {
     }
 
     @Test()
-    fun toToggleTests() = runBlockingTest {
+    fun toToggleTests() = runTest {
         assertEquals(listOf(), producingUnits(0).toToggle().toList())
         assertEquals(listOf(true), producingUnits(1).toToggle().toList())
         assertEquals(listOf(true, false), producingUnits(2).toToggle().toList())
@@ -75,7 +75,7 @@ class FlowTests {
     }
 
     @Test()
-    fun toNextNumbersTests() = runBlockingTest {
+    fun toNextNumbersTests() = runTest {
         assertEquals(listOf(), producingUnits(0).toNextNumbers().toList())
         assertEquals(listOf(1), producingUnits(1).toNextNumbers().toList())
         assertEquals(listOf(1, 2), producingUnits(2).toNextNumbers().toList())
@@ -87,7 +87,7 @@ class FlowTests {
     }
 
     @Test()
-    fun withHistoryTests() = runBlockingTest {
+    fun withHistoryTests() = runTest {
         assertEquals(listOf(listOf()), producingUnits(0).withHistory().toList())
         assertEquals(listOf(listOf(), listOf(Unit)), producingUnits(1).withHistory().toList())
         assertEquals(listOf(listOf(), listOf(Unit), listOf(Unit, Unit)), producingUnits(2).withHistory().toList())
@@ -111,7 +111,7 @@ class FlowTests {
     }
 
     @Test()
-    fun flowDelayEachTests() = runBlockingTest {
+    fun flowDelayEachTests() = runTest {
         val emittedNum = AtomicInteger()
 
         producingUnits(100)
@@ -135,7 +135,7 @@ class FlowTests {
     }
 
     @Test()
-    fun makeTimerTests() = runBlockingTest {
+    fun makeTimerTests() = runTest {
         val mutex = Mutex()
         var ticked = listOf<Int>()
         makeTimer(1000, 10, 20)
@@ -160,7 +160,7 @@ class FlowTests {
     }
 
     @Test()
-    fun `makeTimer if delayed in between, do not provide old values but only shows the last one`() = runBlockingTest {
+    fun `makeTimer if delayed in between, do not provide old values but only shows the last one`() = runTest {
         val maxValue = 20
         val res = makeTimer(100, 1, maxValue)
             .onEach {
@@ -174,7 +174,7 @@ class FlowTests {
     }
 
     @Test()
-    fun makeLightSwitchTests() = runBlockingTest {
+    fun makeLightSwitchTests() = runTest {
         val switchOne = flow<Boolean> {
             emit(true)
             delay(1000)
@@ -212,7 +212,7 @@ class FlowTests {
     }
 
     @Test()
-    fun makeLightSwitchToggleTests() = runBlockingTest {
+    fun makeLightSwitchToggleTests() = runTest {
         val switchOne = flow<Unit> {
             emit(Unit)
             delay(1000)
@@ -250,7 +250,7 @@ class FlowTests {
     }
 
     @Test()
-    fun polonaisePairingTests() = runBlockingTest {
+    fun polonaisePairingTests() = runTest {
         val track1 = flow<Person> {
             emit(Person("A"))
             emit(Person("B"))

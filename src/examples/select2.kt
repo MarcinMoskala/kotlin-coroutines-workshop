@@ -23,8 +23,8 @@ fun main() = runBlocking {
     repeat(40) {
         delay(200)
         select { // selectUnbiased
-            fooChannel.onReceiveOrNull { println("From fooChannel: $it") }
-            barChannel.onReceiveOrNull { println("From barChannel: $it") }
+            fooChannel.onReceive { println("From fooChannel: $it") }
+            barChannel.onReceive { println("From barChannel: $it") }
         }
     }
 }

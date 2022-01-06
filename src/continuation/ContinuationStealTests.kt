@@ -3,7 +3,7 @@ package continuation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.coroutines.resume
 import kotlin.test.assertEquals
@@ -23,7 +23,7 @@ class ContinuationStealTests {
     }
 
     @Test
-    fun `At the beginning function says Before`() = runBlockingTest {
+    fun `At the beginning function says Before`() = runTest {
         val fakeConsole = FakeConsole()
         val job = launch {
             continuationSteal(fakeConsole)
@@ -34,7 +34,7 @@ class ContinuationStealTests {
     }
 
     @Test
-    fun `At the end function says After`() = runBlockingTest {
+    fun `At the end function says After`() = runTest {
         val fakeConsole = FakeConsole()
         val job = launch {
             continuationSteal(fakeConsole)
@@ -44,7 +44,7 @@ class ContinuationStealTests {
     }
 
     @Test
-    fun `In the middle, we suspend function`() = runBlockingTest {
+    fun `In the middle, we suspend function`() = runTest {
         val fakeConsole = FakeConsole()
         val job = launch {
             continuationSteal(fakeConsole)
@@ -54,7 +54,7 @@ class ContinuationStealTests {
     }
 
     @Test
-    fun `Function should return continuation`() = runBlockingTest {
+    fun `Function should return continuation`() = runTest {
         val fakeConsole = FakeConsole()
         launch {
             continuationSteal(fakeConsole)
@@ -64,7 +64,7 @@ class ContinuationStealTests {
     }
 
     @Test
-    fun `Only Before is printed before resume`() = runBlockingTest {
+    fun `Only Before is printed before resume`() = runTest {
         val fakeConsole = FakeConsole()
         val job = launch {
             continuationSteal(fakeConsole)
@@ -74,7 +74,7 @@ class ContinuationStealTests {
     }
 
     @Test
-    fun `After resume function should print text to resume`() = runBlockingTest {
+    fun `After resume function should print text to resume`() = runTest {
         val fakeConsole = FakeConsole()
         launch {
             continuationSteal(fakeConsole)

@@ -3,7 +3,8 @@ package flow
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.currentTime
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -36,7 +37,7 @@ class FactoryTests {
     }
 
     @Test
-    fun `Function produces 20 codes in total`() = runBlockingTest {
+    fun `Function produces 20 codes in total`() = runTest {
         val control = FakeFactoryControl()
 
         setupFactory(control)
@@ -46,7 +47,7 @@ class FactoryTests {
 
 
     @Test
-    fun `There are 5 machines created in total`() = runBlockingTest {
+    fun `There are 5 machines created in total`() = runTest {
         val control = FakeFactoryControl()
 
         setupFactory(control)
@@ -62,7 +63,7 @@ class FactoryTests {
 Codes                    1              2     3          4    5    6
  */
     @Test
-    fun `Machines are produced every 800ms and codes every second`() = runBlockingTest {
+    fun `Machines are produced every 800ms and codes every second`() = runTest {
         val control = FakeFactoryControl()
 
         suspend fun checkAfter(timeMillis: Long, codes: Int) {

@@ -2,7 +2,7 @@ package sequence
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -18,7 +18,7 @@ fun makeUsersSequence(repository: UserRepository): Flow<User> = TODO()
 internal class UsersSequenceTests {
 
     @Test
-    fun test() = runBlockingTest {
+    fun test() = runTest {
         val size = 10_000
         val pageSize = 10
         val repo = FakeUserRepository(size, pageSize)
