@@ -3,6 +3,7 @@ package continuation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.coroutines.resume
@@ -23,7 +24,7 @@ class ContinuationStealTests {
     }
 
     @Test
-    fun `At the beginning function says Before`() = runTest {
+    fun `At the beginning function says Before`() = runTest(UnconfinedTestDispatcher()) {
         val fakeConsole = FakeConsole()
         val job = launch {
             continuationSteal(fakeConsole)
@@ -34,7 +35,7 @@ class ContinuationStealTests {
     }
 
     @Test
-    fun `At the end function says After`() = runTest {
+    fun `At the end function says After`() = runTest(UnconfinedTestDispatcher()) {
         val fakeConsole = FakeConsole()
         val job = launch {
             continuationSteal(fakeConsole)
@@ -44,7 +45,7 @@ class ContinuationStealTests {
     }
 
     @Test
-    fun `In the middle, we suspend function`() = runTest {
+    fun `In the middle, we suspend function`() = runTest(UnconfinedTestDispatcher()) {
         val fakeConsole = FakeConsole()
         val job = launch {
             continuationSteal(fakeConsole)
@@ -54,7 +55,7 @@ class ContinuationStealTests {
     }
 
     @Test
-    fun `Function should return continuation`() = runTest {
+    fun `Function should return continuation`() = runTest(UnconfinedTestDispatcher()) {
         val fakeConsole = FakeConsole()
         launch {
             continuationSteal(fakeConsole)
@@ -64,7 +65,7 @@ class ContinuationStealTests {
     }
 
     @Test
-    fun `Only Before is printed before resume`() = runTest {
+    fun `Only Before is printed before resume`() = runTest(UnconfinedTestDispatcher()) {
         val fakeConsole = FakeConsole()
         val job = launch {
             continuationSteal(fakeConsole)
@@ -74,7 +75,7 @@ class ContinuationStealTests {
     }
 
     @Test
-    fun `After resume function should print text to resume`() = runTest {
+    fun `After resume function should print text to resume`() = runTest(UnconfinedTestDispatcher()) {
         val fakeConsole = FakeConsole()
         launch {
             continuationSteal(fakeConsole)
