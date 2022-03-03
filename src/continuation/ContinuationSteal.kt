@@ -19,9 +19,9 @@ var continuation: Continuation<String>? = null
 
 suspend fun continuationSteal(console: Console = Console()) {
     console.println("Before")
-    // TODO: Suspend in here and store continuation in continuation variable.
+    // TODO: Suspend in here and store continuation in the `continuation` variable.
     // USE suspendCancellableCoroutine instead of suspendCoroutine
-    // TODO: After continuation resume, print using `console` the value that was passed.
+    // TODO: After continuation resume, print the value that was passed using `console`.
     console.println("After")
 }
 
