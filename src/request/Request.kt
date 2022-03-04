@@ -1,6 +1,8 @@
 package request
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.junit.Test
@@ -23,6 +25,7 @@ class RequestTest {
 
     @Test
     fun `Function does return the best student in the semester`() = runBlocking {
+        // given
         val semester = "19L"
         val best = Student(2, 95.0, semester)
         val repo = ImmediateFakeStudentRepo(
@@ -32,47 +35,64 @@ class RequestTest {
                 Student(3, 50.0, semester)
             )
         )
+
+        // when
         val chosen = getBestStudent(semester, repo)
+
+        // then
         assertEquals(best, chosen)
     }
 
     @Test
     fun `When no students, correct error is thrown`() = runBlocking {
+        // given
         val semester = "19L"
-        val best = Student(2, 95.0, semester)
         val repo = ImmediateFakeStudentRepo(listOf())
+
+        // when and then
         assertThrowsError<IllegalStateException> {
-            val chosen = getBestStudent(semester, repo)
+            getBestStudent(semester, repo)
         }
     }
 
     @Test
     fun `Requests do not wait for each other`() = runBlocking {
+        // given
         val repo = WaitingFakeStudentRepo()
+
+        // when and then
         assertTimeAround(1200) {
-            val chosen = getBestStudent("AAA", repo)
+            getBestStudent("AAA", repo)
         }
     }
 
     @Test
     fun `Cancellation works fine`() = runBlocking {
+        // given
         val repo = WaitingFakeStudentRepo()
+
+        // when
         val job = launch {
-            val chosen = getBestStudent("AAA", repo)
+            getBestStudent("AAA", repo)
         }
         delay(300)
         job.cancel()
-        delay(1000)
+
+        // then
         assertEquals(0, repo.returnedStudents)
     }
 
     @Test
     fun `When one request has error, all are stopped and error is thrown`() = runBlocking {
+        // given
         val repo = FirstFailingFakeStudentRepo()
+
+        // when and then
         assertThrowsError<FirstFailingFakeStudentRepo.FirstFailingError> {
             getBestStudent("AAA", repo)
         }
-        delay(1000)
+
+        // then
         assertEquals(
             0,
             repo.studentsReturned,
