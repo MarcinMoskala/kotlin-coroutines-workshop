@@ -25,11 +25,11 @@ fun <T> Flow<T>.delayEach(timeMillis: Long): Flow<T> = TODO()
 
 // Should transform Unit's to toggled boolean value starting from true
 // For instance flowOf(Unit, Unit, Unit, Unit).toNextNumbers() -> [true, false, true, false]
-fun Flow<Unit>.toToggle(): Flow<Boolean> = TODO()
+fun Flow<*>.toToggle(): Flow<Boolean> = TODO()
 
 // Should transform Unit's to next numbers startling from 1
 // For instance flowOf(Unit, Unit, Unit, Unit).toNextNumbers() -> [1, 2, 3, 4]
-fun Flow<Unit>.toNextNumbers(): Flow<Int> = TODO()
+fun Flow<*>.toNextNumbers(): Flow<Int> = TODO()
 
 // Produces not only elements, but the whole history till now
 // For instance flowOf(1, "A", 'C').withHistory() -> [[], [1], [1, A], [1, A, C]]
