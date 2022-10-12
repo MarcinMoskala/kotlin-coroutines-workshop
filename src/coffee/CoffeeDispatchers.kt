@@ -3,12 +3,10 @@ package coffee.dispatchers
 import kotlinx.coroutines.*
 import java.util.concurrent.Executors
 
-val dispatcher = Executors.newSingleThreadExecutor()
-    .asCoroutineDispatcher()
+val dispatcher = Dispatchers.IO.limitedParallelism(1)
 //val dispatcher = Dispatchers.Default
 //val dispatcher = Dispatchers.IO
-//val dispatcher = Executors.newFixedThreadPool(100)
-//    .asCoroutineDispatcher()
+//val dispatcher = ispatchers.IO.limitedParallelism(100)
 
 val longOperation = ::cpu1
 //val longOperation = ::memory
