@@ -1,9 +1,7 @@
 package examples.t5
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.*
 import org.junit.Before
 import org.junit.Test
 import java.time.Instant
@@ -91,21 +89,23 @@ class FakeNewsRepository(val news: List<News>) : NewsRepository {
     }
 }
 
+@ExperimentalCoroutinesApi
 class MainViewModelTests {
-    private val testDispatcher = TestCoroutineDispatcher()
+    private lateinit var scheduler: TestCoroutineScheduler
 
     @Before
     fun setUp() {
-        Dispatchers.setMain(testDispatcher)
+        scheduler = TestCoroutineScheduler()
+        Dispatchers.setMain(StandardTestDispatcher(scheduler))
     }
 
     @Test
     fun `user name is shown`() {
         // when
         viewModel.onCreate()
+        scheduler.advanceUntilIdle()
 
         // then
-        testDispatcher.advanceTimeBy(1000)
         assertEquals(aName, viewModel.userName.value)
     }
 
@@ -113,9 +113,9 @@ class MainViewModelTests {
     fun `sorted news are shown`() {
         // when
         viewModel.onCreate()
+        scheduler.advanceUntilIdle()
 
         // then
-        testDispatcher.advanceTimeBy(1000)
         val someNewsSorted =
             listOf(News(date1), News(date2), News(date3))
         assertEquals(someNewsSorted, viewModel.news.value)
@@ -125,10 +125,9 @@ class MainViewModelTests {
     fun `user and news are called concurrently`() {
         // when
         viewModel.onCreate()
-
-        testDispatcher.advanceUntilIdle()
+        scheduler.advanceUntilIdle()
 
         // then
-        assertEquals(1000, testDispatcher.currentTime)
+        assertEquals(1000, scheduler.currentTime)
     }
 }

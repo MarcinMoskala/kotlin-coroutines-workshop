@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package examples
 
 import kotlinx.coroutines.*
@@ -62,19 +64,19 @@ abstract class BaseViewModel : ViewModel() {
     }
 }
 
-class MainCoroutineRule(
-    val dispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()
-) : TestWatcher(),
-    TestCoroutineScope by TestCoroutineScope(dispatcher) {
+class MainCoroutineRule : TestWatcher() {
+    lateinit var scheduler: TestCoroutineScheduler
+        private set
+    lateinit var dispatcher: TestDispatcher
+        private set
 
     override fun starting(description: Description) {
-        super.starting(description)
+        scheduler = TestCoroutineScheduler()
+        dispatcher = StandardTestDispatcher(scheduler)
         Dispatchers.setMain(dispatcher)
     }
 
     override fun finished(description: Description) {
-        super.finished(description)
-        cleanupTestCoroutines()
         Dispatchers.resetMain()
     }
 }
@@ -104,7 +106,6 @@ class FakeNewsRepository(val news: List<News>) : NewsRepository {
     }
 }
 
-//sampleStart
 class MainViewModelTests {
 
     @get:Rule
@@ -114,9 +115,9 @@ class MainViewModelTests {
     fun `user name is shown`() {
         // when
         viewModel.onCreate()
+        mainCoroutineRule.scheduler.advanceUntilIdle()
 
         // then
-        mainCoroutineRule.advanceTimeBy(1000)
         assertEquals(aName, viewModel.userName.value)
     }
 
@@ -124,9 +125,9 @@ class MainViewModelTests {
     fun `sorted news are shown`() {
         // when
         viewModel.onCreate()
+        mainCoroutineRule.scheduler.advanceUntilIdle()
 
         // then
-        mainCoroutineRule.advanceTimeBy(1000)
         val someNewsSorted =
             listOf(News(date1), News(date2), News(date3))
         assertEquals(someNewsSorted, viewModel.news.value)
@@ -136,10 +137,10 @@ class MainViewModelTests {
     fun `user and news are called concurrently`() {
         // when
         viewModel.onCreate()
+        mainCoroutineRule.scheduler.advanceUntilIdle()
 
-        mainCoroutineRule.advanceUntilIdle()
 
         // then
-        assertEquals(1000, mainCoroutineRule.currentTime)
+        assertEquals(1000, mainCoroutineRule.scheduler.currentTime)
     }
 }

@@ -1,136 +1,94 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package examples.t4
 
-import kotlinx.coroutines.*
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
-import org.junit.Before
 import org.junit.Test
-import java.time.Instant
-import java.util.*
 import kotlin.test.assertEquals
 
-interface UserRepository {
-    suspend fun getUser(): UserData
+class FetchUserUseCase(
+    private val repo: UserDataRepository,
+) {
+
+    suspend fun fetchUserData(): User = coroutineScope {
+        val name = async { repo.getName() }
+        val friends = async { repo.getFriends() }
+        val profile = async { repo.getProfile() }
+        User(
+            name = name.await(),
+            friends = friends.await(),
+            profile = profile.await()
+        )
+    }
 }
 
-interface NewsRepository {
-    suspend fun getNews(): List<News>
-}
+class FetchUserDataTest {
 
-data class UserData(val name: String)
-data class News(val date: Date)
+    @Test
+    fun `should load data concurrently`() = runTest {
+        // given
+        val userRepo = FakeUserDataRepository()
+        val useCase = FetchUserUseCase(userRepo)
 
-interface LiveData<T> {
-    val value: T?
-}
+        // when
+        useCase.fetchUserData()
 
-class MutableLiveData<T> : LiveData<T> {
-    override var value: T? = null
-}
+        // then
+        assertEquals(1000, currentTime)
+    }
 
-abstract class ViewModel()
+    @Test
+    fun `should construct user`() = runTest {
+        // given
+        val userRepo = FakeUserDataRepository()
+        val useCase = FetchUserUseCase(userRepo)
 
-class MainViewModel(
-    private val userRepo: UserRepository,
-    private val newsRepo: NewsRepository
-) : BaseViewModel() {
+        // when
+        val result = useCase.fetchUserData()
 
-    private val _userName = MutableLiveData<String>()
-    val userName: LiveData<String> = _userName
-    private val _news = MutableLiveData<List<News>>()
-    val news: LiveData<List<News>> = _news
+        // then
+        val expectedUser = User(
+            name = "Ben",
+            friends = listOf(Friend("some-friend-id-1")),
+            profile = Profile("Example description")
+        )
+        assertEquals(expectedUser, result)
+    }
 
-    fun onCreate() {
-        scope.launch {
-            val user = userRepo.getUser()
-            _userName.value = user.name
+    class FakeUserDataRepository : UserDataRepository {
+        override suspend fun getName(): String {
+            delay(1000)
+            return "Ben"
         }
-        scope.launch {
-            _news.value = newsRepo.getNews()
-                .sortedByDescending { it.date }
+
+        override suspend fun getFriends(): List<Friend> {
+            delay(1000)
+            return listOf(Friend("some-friend-id-1"))
+        }
+
+        override suspend fun getProfile(): Profile {
+            delay(1000)
+            return Profile("Example description")
         }
     }
 }
 
-
-
-abstract class BaseViewModel : ViewModel() {
-    private val context = Dispatchers.Main + SupervisorJob()
-    val scope = CoroutineScope(context)
-
-    fun onDestroy() {
-        context.cancelChildren()
-    }
+interface UserDataRepository {
+    suspend fun getName(): String
+    suspend fun getFriends(): List<Friend>
+    suspend fun getProfile(): Profile
 }
 
-private val date1 = Date
-    .from(Instant.now().minusSeconds(10))
-private val date2 = Date
-    .from(Instant.now().minusSeconds(20))
-private val date3 = Date
-    .from(Instant.now().minusSeconds(30))
-
-private val aName = "Some name"
-private val someNews =
-    listOf(News(date3), News(date1), News(date2))
-private val viewModel = MainViewModel(
-    userRepo = FakeUserRepository(aName),
-    newsRepo = FakeNewsRepository(someNews)
+data class User(
+    val name: String,
+    val friends: List<Friend>,
+    val profile: Profile
 )
 
-class FakeUserRepository(val name: String) : UserRepository {
-    override suspend fun getUser(): UserData {
-        delay(1000)
-        return UserData(name)
-    }
-}
-
-class FakeNewsRepository(val news: List<News>) : NewsRepository {
-    override suspend fun getNews(): List<News> {
-        delay(1000)
-        return news
-    }
-}
-
-class MainViewModelTests {
-    private val testDispatcher = TestCoroutineDispatcher()
-
-    @Before
-    fun setUp() {
-        Dispatchers.setMain(testDispatcher)
-    }
-
-    @Test
-    fun `user name is shown`() {
-        // when
-        viewModel.onCreate()
-
-        // then
-        testDispatcher.advanceTimeBy(1000)
-        assertEquals(aName, viewModel.userName.value)
-    }
-
-    @Test
-    fun `sorted news are shown`() {
-        // when
-        viewModel.onCreate()
-
-        // then
-        testDispatcher.advanceTimeBy(1000)
-        val someNewsSorted =
-            listOf(News(date1), News(date2), News(date3))
-        assertEquals(someNewsSorted, viewModel.news.value)
-    }
-
-    @Test
-    fun `user and news are called concurrently`() {
-        // when
-        viewModel.onCreate()
-
-        testDispatcher.advanceUntilIdle()
-
-        // then
-        assertEquals(1000, testDispatcher.currentTime)
-    }
-}
+data class Friend(val id: String)
+data class Profile(val description: String)
