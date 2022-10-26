@@ -1,16 +1,14 @@
 package flow
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.currentTime
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import java.util.concurrent.atomic.AtomicInteger
@@ -35,22 +33,44 @@ fun Flow<*>.toNextNumbers(): Flow<Int> = TODO()
 // For instance flowOf(1, "A", 'C').withHistory() -> [[], [1], [1, A], [1, A, C]]
 fun <T> Flow<T>.withHistory(): Flow<List<T>> = TODO()
 
-// Should create a flow that every `tickEveryMillis` should emit next numbers from `startNum` to `endNum`
+// Should create a flow that every `tickEveryMillis` should emit next numbers from `startNum` to `endNum`.
+// The first number should be emitted imidietely, each next one after `tickEveryMillis` delay.
+// Should be conflated.
+// Example:
+// makeTimer(1000, 5, 8).collect { println("$currentTime ms -> $it") }
+// 0 ms -> 5
+// 1000 ms -> 6
+// 2000 ms -> 7
+// 3000 ms -> 8
+// makeTimer(1000, 5, 9).collect { delay(2500); println("$currentTime ms -> $it") }
+// 2500 ms -> 5
+// 5000 ms -> 7
+// 7500 ms -> 9
 fun makeTimer(tickEveryMillis: Long, startNum: Int, endNum: Int): Flow<Int> = TODO()
 
 // Based on two light switches, should decide if the general light should be switched on.
-// Should be if one is true and another is false
+// Should be if one is true and another is false.
+// The first state should be false, and then with each even from any switch, new state should be emitted.
+// Example:
+// switch1 -------t-----f----------t-t-------
+// switch2 ----------------f-t-f--------t-f-t
+// Result  f------t-----f--f-t-f---t-t--f-t-f
 fun makeLightSwitch(switch1: Flow<Boolean>, switch2: Flow<Boolean>): Flow<Boolean> = TODO()
 
 // Based on two light switches, should decide if the general light should be switched on.
 // Should be if one is turned on and another is off
-// At the beginning, both switches are off, and each action toggles
+// Each event from a switch emits news state. The first state is true, each new state is toggled.
+// Example:
+// switch1 -------U-----U--------------------------U---------------UU-----
+// switch2 ----------------U-------------------U-------------U------------
+// Result  -------t-----f--t-------------------f---t---------f-----tf-----
 fun makeLightSwitchToggle(switch1: Flow<Unit>, switch2: Flow<Unit>): Flow<Boolean> = TODO()
 
 fun polonaisePairing(track1: Flow<Person>, track2: Flow<Person>): Flow<Pair<Person, Person>> = TODO()
 
 data class Person(val name: String)
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("FunctionName")
 class FlowTests {
 
@@ -135,7 +155,7 @@ class FlowTests {
     }
 
     @Test()
-    fun makeTimerTests() = runTest {
+    fun makeTimerTests() = runTest(UnconfinedTestDispatcher()) {
         val mutex = Mutex()
         var ticked = listOf<Int>()
         makeTimer(1000, 10, 20)
@@ -211,6 +231,56 @@ class FlowTests {
         assertEquals(false, lightOn)
     }
 
+    // Example:
+    // switch1 -------t-----f----------t-t-------
+    // switch2 ----------------f-t-f--------t-f-t
+    // Result  f------t-----f--f-t-f---t-t--f-t-f
+    @Test()
+    fun makeLightSwitchExampleTests() = runTest {
+        val switch1 = flow {
+            delay(7_000)
+            emit(true)
+            delay(6_000)
+            emit(false)
+            delay(11_000)
+            emit(true)
+            delay(2_000)
+            emit(true)
+        }
+        val switch2 = flow {
+            delay(16_000)
+            emit(false)
+            delay(2_000)
+            emit(true)
+            delay(2_000)
+            emit(false)
+            delay(9_000)
+            emit(true)
+            delay(2_000)
+            emit(false)
+            delay(2_000)
+            emit(true)
+        }
+
+        val result = makeLightSwitch(switch1, switch2)
+            .fold(mapOf<Long, Boolean>()) { acc, e -> acc + (currentTime to e) }
+
+        val expected = mapOf(
+            0L to false,
+            7_000L to true,
+            13_000L to false,
+            16_000L to false,
+            18_000L to true,
+            20_000L to false,
+            24_000L to true,
+            26_000L to true,
+            29_000L to false,
+            31_000L to true,
+            33_000L to false,
+        )
+        assertEquals(expected, result)
+    }
+
     @Test()
     fun makeLightSwitchToggleTests() = runTest {
         val switchOne = flow<Unit> {
@@ -238,15 +308,57 @@ class FlowTests {
         }
 
         delay(50)
-        assertEquals(true, lightOn)
+        assertEquals(false, lightOn)
         delay(200) // 250
-        assertEquals(false, lightOn)
-        delay(800) // 1050
-        assertEquals(false, lightOn)
-        delay(200) // 1250
         assertEquals(true, lightOn)
-        delay(300) // 1550
+        delay(800) // 1050
+        assertEquals(true, lightOn)
+        delay(200) // 1250
         assertEquals(false, lightOn)
+        delay(300) // 1550
+        assertEquals(true, lightOn)
+    }
+
+    // switch1 -------U-----U--------------------------U---------------UU-----
+    // switch2 ----------------U-------------------U-------------U------------
+    // Result  -------t-----f--t-------------------f---t---------f-----tf-----
+    @Test()
+    fun makeLightSwitchToggleExampleTests() = runTest {
+        val switch1 = flow {
+            delay(7_000)
+            emit(Unit)
+            delay(6_000)
+            emit(Unit)
+            delay(27_000)
+            emit(Unit)
+            delay(16_000)
+            emit(Unit)
+            delay(1_000)
+            emit(Unit)
+        }
+        val switch2 = flow {
+            delay(16_000)
+            emit(Unit)
+            delay(20_000)
+            emit(Unit)
+            delay(17_000)
+            emit(Unit)
+        }
+
+        val result = makeLightSwitchToggle(switch1, switch2)
+            .fold(mapOf<Long, Boolean>()) { acc, e -> acc + (currentTime to e) }
+
+        val expected = mapOf(
+            7_000L to true,
+            13_000L to false,
+            16_000L to true,
+            36_000L to false,
+            40_000L to true,
+            53_000L to false,
+            56_000L to true,
+            57_000L to false,
+        )
+        assertEquals(expected, result)
     }
 
     @Test()
@@ -275,6 +387,7 @@ class FlowTests {
             polonaisePairing(track1, track2).collect { lastPair = it }
         }
 
+        runCurrent()
         assertEquals(Person("A") to Person("1"), lastPair)
         delay(200) // 200
         assertEquals(Person("A") to Person("1"), lastPair)
