@@ -9,7 +9,6 @@ val dispatcher = Dispatchers.IO.limitedParallelism(1)
 //val dispatcher = Dispatchers.IO.limitedParallelism(100)
 
 val longOperation = ::cpu1
-//val longOperation = ::memory
 //val longOperation = ::blocking
 //val longOperation = ::suspending
 
@@ -18,23 +17,6 @@ fun cpu1() {
     while (i > 0) {
         i -= if (i % 2 == 0) 1 else 2
     }
-}
-
-fun cpu2() {
-    var isPrime = true
-    for (numberToCheck in 1..13774) {
-        isPrime = true
-        for (i in 1..numberToCheck) {
-            if (numberToCheck % i == 0) isPrime = false
-        }
-    }
-}
-
-fun memory() {
-    val list = List(1_000) { it }
-    val list2 = List(1_000) { list }
-    val list3 = List(30) { list2 }
-    list3.hashCode()
 }
 
 fun blocking() {
