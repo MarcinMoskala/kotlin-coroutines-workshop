@@ -40,11 +40,11 @@ class MainViewModel(
     val news: LiveData<List<News>> = _news
 
     fun onCreate() {
-        scope.launch {
+        viewModelScope.launch {
             val user = userRepo.getUser()
             _userName.value = user.name
         }
-        scope.launch {
+        viewModelScope.launch {
             _news.value = newsRepo.getNews()
                 .sortedByDescending { it.date }
         }
@@ -52,8 +52,8 @@ class MainViewModel(
 }
 
 abstract class BaseViewModel : ViewModel() {
-    private val context = Dispatchers.Main + SupervisorJob()
-    val scope = CoroutineScope(context)
+    private val context = Dispatchers.Main.immediate + SupervisorJob()
+    val viewModelScope = CoroutineScope(context)
 
     fun onDestroy() {
         context.cancelChildren()
