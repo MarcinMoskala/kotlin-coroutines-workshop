@@ -21,16 +21,22 @@ suspend fun main() {
 
 //executor.schedule({}, 1000, TimeUnit.MILLISECONDS)
 
-//class User(val name: String)
-//class ApiException: Throwable()
-//
+
+
 //fun fetchUser(callback: (User) -> Unit) {
 //    thread {
 //        Thread.sleep(1000)
 //        callback(User("Test"))
 //    }
 //}
-//fun fetchUser(onSuccess: (User) -> Unit, onError: (Throwable) -> Unit) {
+//fun fetchUser(callback: (User) -> Unit): Call {
+//    thread {
+//        Thread.sleep(1000)
+//        callback(User("Test"))
+//    }
+//    return Call()
+//}
+//fun fetchUser(onSuccess: (User) -> Unit, onError: (Throwable) -> Unit): Call {
 //    thread {
 //        Thread.sleep(1000)
 //        if (Random.nextBoolean()) {
@@ -39,4 +45,11 @@ suspend fun main() {
 //            onError(ApiException())
 //        }
 //    }
+//    return Call()
 //}
+
+class User(val name: String)
+class ApiException: Throwable()
+class Call {
+    fun cancel() {}
+}
