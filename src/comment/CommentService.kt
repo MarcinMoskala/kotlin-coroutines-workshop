@@ -1,7 +1,5 @@
 package domain.comment
 
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
 class CommentsService(

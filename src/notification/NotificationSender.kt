@@ -1,20 +1,31 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package notification
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import org.junit.Test
-import kotlin.concurrent.thread
-import kotlin.system.measureTimeMillis
 import kotlin.test.assertEquals
 
 class NotificationsSender(
-    val client: NotificationsClient,
-    val exceptionCollector: ExceptionCollector,
+    private val client: NotificationsClient,
+    private val exceptionCollector: ExceptionCollector,
+    dispatcher: CoroutineDispatcher,
 ) {
+    private val handler = CoroutineExceptionHandler { _, t -> exceptionCollector.collectException(t) }
+    val scope = CoroutineScope(SupervisorJob() + handler + dispatcher)
 
     fun sendNotifications(notifications: List<Notification>) {
+        for (notification in notifications) {
+            scope.launch {
+                client.send(notification)
+            }
+        }
     }
 
     fun cancel() {
+        scope.coroutineContext.cancelChildren()
     }
 }
 
@@ -34,15 +45,19 @@ class NotificationsSenderTest {
     fun `should send 20 notifications concurrently`() {
         val fakeNotificationsClient = FakeNotificationsClient(delayTime = 200)
         val fakeExceptionCollector = FakeExceptionCollector()
-        val sender = NotificationsSender(fakeNotificationsClient, fakeExceptionCollector)
+        val testDispatcher = StandardTestDispatcher()
+        val sender = NotificationsSender(fakeNotificationsClient, fakeExceptionCollector, testDispatcher)
         val notifications = List(20) { Notification("ID$it") }
 
         // when
-        val time = measureTimeMillis {
-            sender.sendNotifications(notifications)
-        }
+        sender.sendNotifications(notifications)
+        testDispatcher.scheduler.advanceUntilIdle()
+        testDispatcher.scheduler.runCurrent()
 
         // then
+        assertEquals(notifications, fakeNotificationsClient.sent)
+
+        val time = testDispatcher.scheduler.currentTime
         assert(time >= 200) { "Function should block until all notifications are sent (it takes $time)" }
         assert(time < 400) { "20 notifications should be sent concurrently, so they should take around 200ms, but it takes $time" }
     }
@@ -51,31 +66,31 @@ class NotificationsSenderTest {
     fun `should support cancellation`() {
         val fakeNotificationsClient = FakeNotificationsClient(delayTime = 1000)
         val fakeExceptionCollector = FakeExceptionCollector()
-        val sender = NotificationsSender(fakeNotificationsClient, fakeExceptionCollector)
+        val testDispatcher = StandardTestDispatcher()
+        val sender = NotificationsSender(fakeNotificationsClient, fakeExceptionCollector, testDispatcher)
         val notifications = List(20) { Notification("ID$it") }
 
         // when
-        thread {
-            Thread.sleep(500)
-            sender.cancel()
-        }
-        val time = measureTimeMillis {
-            sender.sendNotifications(notifications)
-        }
+        sender.sendNotifications(notifications)
+        testDispatcher.scheduler.advanceTimeBy(500)
+        sender.cancel()
 
         // then
-        assert(time in 500..800) { "Cancellation after 500, should take above 500, takes $time" }
+        assert(sender.scope.coroutineContext.job.children.all { it.isCancelled })
+
     }
 
     @Test
     fun `should not cancel other notifications, when one has exception`() {
         val fakeNotificationsClient = FakeNotificationsClient(delayTime = 100, failEvery = 10)
         val fakeExceptionCollector = FakeExceptionCollector()
-        val sender = NotificationsSender(fakeNotificationsClient, fakeExceptionCollector)
+        val testDispatcher = StandardTestDispatcher()
+        val sender = NotificationsSender(fakeNotificationsClient, fakeExceptionCollector, testDispatcher)
         val notifications = List(100) { Notification("ID$it") }
 
         // when
         sender.sendNotifications(notifications)
+        testDispatcher.scheduler.advanceUntilIdle()
 
         // then
         assertEquals(90, fakeNotificationsClient.sent.size)
@@ -85,11 +100,13 @@ class NotificationsSenderTest {
     fun `should send info about failed notifications`() {
         val fakeNotificationsClient = FakeNotificationsClient(delayTime = 100, failEvery = 10)
         val fakeExceptionCollector = FakeExceptionCollector()
-        val sender = NotificationsSender(fakeNotificationsClient, fakeExceptionCollector)
+        val testDispatcher = StandardTestDispatcher()
+        val sender = NotificationsSender(fakeNotificationsClient, fakeExceptionCollector, testDispatcher)
         val notifications = List(100) { Notification("ID$it") }
 
         // when
         sender.sendNotifications(notifications)
+        testDispatcher.scheduler.advanceUntilIdle()
 
         // then
         assertEquals(10, fakeExceptionCollector.collected.size)
@@ -103,18 +120,15 @@ class FakeNotificationsClient(
     var sent = emptyList<Notification>()
     var counter = 0
     var usedThreads = emptyList<String>()
-    val dispatcher = Dispatchers.IO.limitedParallelism(1)
 
     override suspend fun send(notification: Notification) {
         if (delayTime > 0) delay(delayTime)
         usedThreads += Thread.currentThread().name
-        withContext(dispatcher) {
-            counter++
-            if (counter % failEvery == 0) {
-                throw FakeFailure(notification)
-            }
-            sent += notification
+        counter++
+        if (counter % failEvery == 0) {
+            throw FakeFailure(notification)
         }
+        sent += notification
     }
 }
 

@@ -1,4 +1,4 @@
-package ui
+package user
 
 import kotlinx.coroutines.*
 import org.junit.Test
@@ -8,12 +8,18 @@ import kotlin.system.measureTimeMillis
 import kotlin.test.assertEquals
 
 class DiscUserRepository(private val discReader: DiscReader) : UserRepository {
-    override suspend fun getUser(): UserData = UserData(discReader.read("userName"))
+    override suspend fun getUser(userId: String): UserData = UserData(discReader.read("user/$userId"))
 }
 
 interface DiscReader {
     fun read(key: String): String
 }
+
+interface UserRepository {
+    suspend fun getUser(userId: String): UserData
+}
+
+data class UserData(val name: String)
 
 @Suppress("FunctionName")
 class DiscUserRepositoryTests {
@@ -22,7 +28,7 @@ class DiscUserRepositoryTests {
     fun `should read data from disc using DiscReader`() = runBlocking {
         val name = "Marcin"
         val repo = DiscUserRepository(ImmediateDiscReader(mapOf("userName" to name)))
-        val res = repo.getUser()
+        val res = repo.getUser("SomeUserId")
         assertEquals(name, res.name)
     }
 
@@ -38,7 +44,7 @@ class DiscUserRepositoryTests {
             coroutineScope {
                 repeat(10) {
                     launch {
-                        repo.getUser()
+                        repo.getUser("SomeUserId")
                     }
                 }
             }
@@ -54,7 +60,7 @@ class DiscUserRepositoryTests {
             coroutineScope {
                 repeat(200) {
                     launch {
-                        repo.getUser()
+                        repo.getUser("SomeUserId")
                     }
                 }
             }

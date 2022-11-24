@@ -1,5 +1,5 @@
 plugins {
-    id "org.jetbrains.kotlin.jvm" version "1.6.10"
+    id "org.jetbrains.kotlin.jvm" version "1.7.20"
 }
 repositories {
     mavenCentral()
@@ -8,19 +8,19 @@ repositories {
 apply plugin: "kotlin"
 
 dependencies {
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10'
-    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.6.0'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.7.20'
 
-    implementation 'org.jetbrains.kotlin:kotlin-test:1.6.0'
-    implementation 'org.jetbrains.kotlin:kotlin-test-junit:1.6.0'
+    implementation 'org.jetbrains.kotlin:kotlin-test:1.7.20'
+    implementation 'org.jetbrains.kotlin:kotlin-test-junit:1.7.20'
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-native-mt'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0-native-mt'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3-native-mt'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.3-native-mt'
 
     // Callback exercise
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation "com.squareup.retrofit2:converter-jackson:2.9.0"
-    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0'
 }
 
 tasks.withType(JavaCompile) {
@@ -32,10 +32,6 @@ kotlin {
     sourceSets {
         main.kotlin.srcDirs += 'src'
         test.kotlin.srcDirs += 'src'
-    }
-
-    experimental {
-        coroutines "enable"
     }
 }
 
