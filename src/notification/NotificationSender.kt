@@ -73,6 +73,8 @@ class NotificationsSenderTest {
         // then
         assert(sender.scope.coroutineContext.job.children.all { it.isCancelled })
 
+        // and scope should still be active
+        assert(sender.scope.isActive)
     }
 
     @Test
