@@ -2,8 +2,6 @@ package user
 
 import kotlinx.coroutines.*
 import org.junit.Test
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.system.measureTimeMillis
 import kotlin.test.assertEquals
 
@@ -27,7 +25,7 @@ class DiscUserRepositoryTests {
     @Test
     fun `should read data from disc using DiscReader`() = runBlocking {
         val name = "Marcin"
-        val repo = DiscUserRepository(ImmediateDiscReader(mapOf("userName" to name)))
+        val repo = DiscUserRepository(OneSecDiscReader("Marcin"))
         val res = repo.getUser("SomeUserId")
         assertEquals(name, res.name)
     }
@@ -38,13 +36,12 @@ class DiscUserRepositoryTests {
 
     @Test
     fun `should be prepared for many reads at the same time`() = runBlocking<Unit> {
-        val name = "Marcin"
-        val repo = DiscUserRepository(OneSecDiscReader(mapOf("userName" to name)))
+        val repo = DiscUserRepository(OneSecDiscReader("Marcin"))
         val time = measureTimeMillis {
             coroutineScope {
-                repeat(10) {
+                repeat(10) { id ->
                     launch {
-                        repo.getUser("SomeUserId")
+                        repo.getUser("SomeUserId$id")
                     }
                 }
             }
@@ -54,13 +51,12 @@ class DiscUserRepositoryTests {
 
     @Test
     fun `should be prepared for 200 reads at the same time`() = runBlocking<Unit> {
-        val name = "Marcin"
-        val repo = DiscUserRepository(OneSecDiscReader(mapOf("userName" to name)))
+        val repo = DiscUserRepository(OneSecDiscReader("Marcin"))
         val time = measureTimeMillis {
             coroutineScope {
-                repeat(200) {
+                repeat(200) { id ->
                     launch {
-                        repo.getUser("SomeUserId")
+                        repo.getUser("SomeUserId$id")
                     }
                 }
             }
@@ -68,10 +64,10 @@ class DiscUserRepositoryTests {
         assert(time < 2000) { "Should take less than 2000, took $time" }
     }
 
-    class OneSecDiscReader(val map: Map<String, String>) : DiscReader {
+    class OneSecDiscReader(private val response: String) : DiscReader {
         override fun read(key: String): String {
             Thread.sleep(1000)
-            return map[key] ?: error("Element not found")
+            return response
         }
     }
 }
