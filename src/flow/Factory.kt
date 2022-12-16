@@ -5,6 +5,9 @@ import java.util.Random
 
 // Finish the below implementation using a flow.
 //
+// Implement a factory using a flow. You should start by creating 5 machines,
+// each every 800 ms, and those machines should produce codes every second.
+// You should produce 20 codes in total. Each code should be consumed using control.storeCode.
 
 fun main() = runBlocking<Unit> {
     setupFactory(StandardFactoryControl())
