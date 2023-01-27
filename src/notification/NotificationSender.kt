@@ -47,14 +47,10 @@ class NotificationsSenderTest {
         // when
         sender.sendNotifications(notifications)
         testDispatcher.scheduler.advanceUntilIdle()
-        testDispatcher.scheduler.runCurrent()
 
         // then
         assertEquals(notifications, fakeNotificationsClient.sent)
-
-        val time = testDispatcher.scheduler.currentTime
-        assert(time >= 200) { "Function should block until all notifications are sent (it takes $time)" }
-        assert(time < 400) { "20 notifications should be sent concurrently, so they should take around 200ms, but it takes $time" }
+        assertEquals(200, testDispatcher.scheduler.currentTime, "Notifications should be sent concurrently")
     }
 
     @Test
