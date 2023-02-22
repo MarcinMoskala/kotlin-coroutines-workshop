@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
@@ -23,6 +24,10 @@ fun <T> Flow<T>.delayEach(timeMillis: Long): Flow<T> = TODO()
 
 // Should transform Unit's to toggled boolean value starting from true
 // For instance flowOf(Unit, Unit, Unit, Unit).toNextNumbers() -> [true, false, true, false]
+fun <T, R> Flow<T>.mapIndexed(transformation: suspend (index: Int, T) -> R): Flow<R> = TODO()
+
+// Should transform Unit's to toggled boolean value starting from true
+// For instance flowOf(Unit, Unit, Unit, Unit).toNextNumbers() -> [true, false, true, false]
 fun Flow<*>.toToggle(): Flow<Boolean> = TODO()
 
 // Should transform Unit's to next numbers startling from 1
@@ -34,7 +39,7 @@ fun Flow<*>.toNextNumbers(): Flow<Int> = TODO()
 fun <T> Flow<T>.withHistory(): Flow<List<T>> = TODO()
 
 // Should create a flow that every `tickEveryMillis` should emit next numbers from `startNum` to `endNum`.
-// The first number should be emitted imidietely, each next one after `tickEveryMillis` delay.
+// The first number should be emitted immediately, each next one after `tickEveryMillis` delay.
 // Should be conflated.
 // Example:
 // makeTimer(1000, 5, 8).collect { println("$currentTime ms -> $it") }
@@ -71,6 +76,12 @@ fun polonaisePairing(track1: Flow<Person>, track2: Flow<Person>): Flow<Pair<Pers
 data class Person(val name: String)
 
 @OptIn(ExperimentalCoroutinesApi::class)
+private fun <T> Flow<T>.withVirtualTime(testScope: TestScope): Flow<ValueAndTime<T>> =
+    map { ValueAndTime(it, testScope.currentTime) }
+
+data class ValueAndTime<T>(val value: T, val timeMillis: Long)
+
+@OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("FunctionName")
 class FlowTests {
 
@@ -83,51 +94,6 @@ class FlowTests {
         for (i in 1..100 step 7) {
             assertEquals(List(i) { Unit }, producingUnits(i).toList())
         }
-    }
-
-    @Test()
-    fun toToggleTests() = runTest {
-        assertEquals(listOf(), producingUnits(0).toToggle().toList())
-        assertEquals(listOf(true), producingUnits(1).toToggle().toList())
-        assertEquals(listOf(true, false), producingUnits(2).toToggle().toList())
-        assertEquals(listOf(true, false, true), producingUnits(3).toToggle().toList())
-        assertEquals(listOf(true, false, true, false), producingUnits(4).toToggle().toList())
-    }
-
-    @Test()
-    fun toNextNumbersTests() = runTest {
-        assertEquals(listOf(), producingUnits(0).toNextNumbers().toList())
-        assertEquals(listOf(1), producingUnits(1).toNextNumbers().toList())
-        assertEquals(listOf(1, 2), producingUnits(2).toNextNumbers().toList())
-        assertEquals(listOf(1, 2, 3), producingUnits(3).toNextNumbers().toList())
-        for (i in 1..100 step 7) {
-            val list = List(i) { it + 1 }
-            assertEquals(list, list.map { Unit }.asFlow().toNextNumbers().toList())
-        }
-    }
-
-    @Test()
-    fun withHistoryTests() = runTest {
-        assertEquals(listOf(listOf()), producingUnits(0).withHistory().toList())
-        assertEquals(listOf(listOf(), listOf(Unit)), producingUnits(1).withHistory().toList())
-        assertEquals(listOf(listOf(), listOf(Unit), listOf(Unit, Unit)), producingUnits(2).withHistory().toList())
-
-        assertEquals(
-            listOf(listOf(), listOf(1), listOf(1, 2)),
-            producingUnits(2).toNextNumbers().withHistory().toList()
-        )
-        assertEquals(
-            listOf(listOf(), listOf(true), listOf(true, false)),
-            producingUnits(2).toToggle().withHistory().toList()
-        )
-
-        val flow = flow {
-            emit("A")
-            delay(100)
-            emit(10)
-            emit("C")
-        }
-        assertEquals(listOf(listOf(), listOf("A"), listOf("A", 10), listOf("A", 10, "C")), flow.withHistory().toList())
     }
 
     @Test()
@@ -152,6 +118,91 @@ class FlowTests {
         // After another 12 000ms there should be twelve more elements
         delay(12_000)
         assertEquals(15, emittedNum.get())
+    }
+
+    @Test()
+    fun mapIndexedTests() = runTest {
+        assertEquals(
+            listOf("0 A", "1 B", "2 C", "3 D"),
+            ('A'..'D').asFlow()
+                .mapIndexed { index, letter -> "$index $letter" }
+                .toList()
+        )
+
+        val actual: List<ValueAndTime<Pair<Int, Any>>> = flow<Any> {
+            delay(10)
+            emit(10)
+            delay(100)
+            emit("A")
+            delay(1000)
+            emit('C')
+        }.mapIndexed { index, any -> Pair(index, any) }
+            .withVirtualTime(this)
+            .toList()
+        val expected: List<ValueAndTime<Pair<Int, Any>>> = listOf(
+            ValueAndTime(Pair(0, 10), 10),
+            ValueAndTime(Pair(1, "A"), 110),
+            ValueAndTime(Pair(2, 'C'), 1110),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test()
+    fun toToggleTests() = runTest {
+        assertEquals(listOf(), producingUnits(0).toToggle().toList())
+        assertEquals(listOf(true), producingUnits(1).toToggle().toList())
+        assertEquals(listOf(true, false), producingUnits(2).toToggle().toList())
+        assertEquals(listOf(true, false, true), producingUnits(3).toToggle().toList())
+        assertEquals(listOf(true, false, true, false), producingUnits(4).toToggle().toList())
+    }
+
+    @Test()
+    fun toNextNumbersTests() = runTest {
+        assertEquals(listOf(), producingUnits(0).toNextNumbers().toList())
+        assertEquals(listOf(1), producingUnits(1).toNextNumbers().toList())
+        assertEquals(listOf(1, 2), producingUnits(2).toNextNumbers().toList())
+        assertEquals(listOf(1, 2, 3), producingUnits(3).toNextNumbers().toList())
+        for (i in 1..100 step 7) {
+            val list = List(i) { it + 1 }
+            assertEquals(list, list.map {}.asFlow().toNextNumbers().toList())
+        }
+    }
+
+    @Test()
+    fun withHistoryTests() = runTest {
+        assertEquals(listOf(listOf()), producingUnits(0).withHistory().toList())
+        assertEquals(listOf(listOf(), listOf(Unit)), producingUnits(1).withHistory().toList())
+        assertEquals(listOf(listOf(), listOf(Unit), listOf(Unit, Unit)), producingUnits(2).withHistory().toList())
+
+        assertEquals(
+            listOf(listOf(), listOf(1), listOf(1, 2)),
+            flowOf(1, 2).withHistory().toList()
+        )
+        assertEquals(
+            listOf(listOf(), listOf(true), listOf(true, false)),
+            flowOf(true, false).withHistory().toList()
+        )
+
+        val flow = flow {
+            delay(10)
+            emit("A")
+            delay(100)
+            emit(10)
+            delay(1000)
+            emit("C")
+        }
+
+        assertEquals(
+            listOf(
+                ValueAndTime(listOf(), 0),
+                ValueAndTime(listOf("A"), 10),
+                ValueAndTime(listOf("A", 10), 110),
+                ValueAndTime(listOf("A", 10, "C"), 1110),
+            ),
+            flow.withHistory()
+                .withVirtualTime(this)
+                .toList()
+        )
     }
 
     @Test()
