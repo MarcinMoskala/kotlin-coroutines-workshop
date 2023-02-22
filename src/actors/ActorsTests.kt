@@ -101,8 +101,8 @@ class ActorsTests {
 
         val job = launch { setupFactory(control) }
         for (i in 0..20) {
-            assertEquals(i, control.createdMachines.size)
             delay(800)
+            assertEquals(i, control.createdMachines.size)
         }
         job.cancel()
     }
