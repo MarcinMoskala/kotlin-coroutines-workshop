@@ -22,8 +22,8 @@ fun producingUnits(num: Int): Flow<Unit> = TODO()
 // Adds a delay of time `timeMillis` between elements
 fun <T> Flow<T>.delayEach(timeMillis: Long): Flow<T> = TODO()
 
-// Should transform Unit's to toggled boolean value starting from true
-// For instance flowOf(Unit, Unit, Unit, Unit).toNextNumbers() -> [true, false, true, false]
+// Should transform values, where transformation value should have index of the element
+// flowOf("A", "B").mapIndexed { index, value -> "$index$value" } -> ["0A", "0B"]
 fun <T, R> Flow<T>.mapIndexed(transformation: suspend (index: Int, T) -> R): Flow<R> = TODO()
 
 // Should transform Unit's to toggled boolean value starting from true
