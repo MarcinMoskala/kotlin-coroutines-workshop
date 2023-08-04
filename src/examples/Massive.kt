@@ -14,7 +14,7 @@ import kotlin.concurrent.thread
 //    }
 //}
 
-// No! Don't do it! Very bed idea on threads
+// No! Don't do it! Very bad idea on threads
 fun main() {
     repeat(100_000) {
         thread {
