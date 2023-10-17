@@ -28,10 +28,16 @@ fun <T, R> Flow<T>.mapIndexed(transformation: suspend (index: Int, T) -> R): Flo
 
 // Should transform Unit's to toggled boolean value starting from true
 // For instance flowOf(Unit, Unit, Unit, Unit).toNextNumbers() -> [true, false, true, false]
+// Example:
+// Input   --------U------UU---------U------
+// Result  --------t------ft---------f------
 fun Flow<*>.toToggle(): Flow<Boolean> = TODO()
 
 // Should transform Unit's to next numbers startling from 1
 // For instance flowOf(Unit, Unit, Unit, Unit).toNextNumbers() -> [1, 2, 3, 4]
+// Example:
+// Input   --------U------UU---------U------
+// Result  --------1------23---------4------
 fun Flow<*>.toNextNumbers(): Flow<Int> = TODO()
 
 // Produces not only elements, but the whole history till now
